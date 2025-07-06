@@ -302,12 +302,9 @@ const ChatWindowComponent = ({
 	};
 
 	return (
-		<div
-			className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}
-			style={{ display: "flex", flexDirection: "column", height: "100%" }}
-		>
-			<div className={styles.chatWindow} style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-				<div className={styles.messageListWrapper} style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+		<div className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}>
+			<div className={styles.chatWindow}>
+				<div className={styles.messageListWrapper}>
 					<ChatHeader
 						chat={apiChannel}
 						avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
@@ -334,6 +331,11 @@ const ChatWindowComponent = ({
 					isSending={appStore.isSendingMessage}
 				/>
 			</div>
+			<ChatOverview
+				channel={apiChannel}
+				isOwner={isOwner}
+				visible={showOverview}
+			/>
 			{showScrollButton && (
 				<button
 					className={`${styles.scrollButton} ${styles.visible}`}
@@ -360,11 +362,6 @@ const ChatWindowComponent = ({
 					</div>
 				</div>
 			)}
-			<ChatOverview
-				channel={apiChannel}
-				isOwner={isOwner}
-				visible={showOverview}
-			/>
 		</div>
 	);
 };
