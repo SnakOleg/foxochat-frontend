@@ -8,11 +8,11 @@
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 20;
-  background: rgb(21 21 21 / 0.8);
-  backdrop-filter: blur(10px);
+  background: rgb(21 21 21 / .80);
+  backdrop-filter: blur(50px);
   border-bottom: 1px solid rgb(var(--primary-color-rgb), .15);
   gap: 10px;
+  z-index: 100;
 }
 
 .backButton {

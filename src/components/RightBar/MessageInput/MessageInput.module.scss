@@ -1,8 +1,8 @@
 .messageInputContainer {
   display: flex;
   flex-direction: column;
-  background: rgb(21 21 21 / 0.8);
-  backdrop-filter: blur(10px);
+  background: rgb(21 21 21 / .80);
+  backdrop-filter: blur(50px);
   padding: 0 15px;
   gap: 8px;
   border-top: 1px solid rgb(var(--primary-color-rgb), .15);
@@ -10,7 +10,7 @@
   left: 0;
   bottom: 0;
   width: 100%;
-  z-index: 20;
+  z-index: 100;
 }
 
 .error {

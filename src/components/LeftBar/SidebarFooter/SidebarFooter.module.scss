@@ -147,49 +147,48 @@
   gap: 40px;
   align-items: center;
   justify-content: center;
-  padding: 12px 0 8px 0;
+  padding: 16px 0 8px 0;
   border-top: 1px solid rgb(96 96 96 / 0.5);
   background: transparent;
 }
 
 .navBtn {
+  position: relative;
+  width: 97px;
+  height: 52px;
   background: none;
   border: none;
   outline: none;
-  padding: 0;
-  margin: 0 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  width: 56px;
-  height: 56px;
-  transition: background 0.18s, opacity 0.18s, color 0.18s;
+  border-radius: 12px;
+  transition: background 0.18s, color 0.18s;
   cursor: pointer;
   color: rgb(var(--primary-color-rgb), .50);
+
+  &.active::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 0;
+    bottom: 0;
+    border-radius: 10px;
+    background: rgb(var(--branded-color-rgb), 0.08);
+    z-index: 0;
+    transition: background 0.18s;
+  }
+
+  .icon, svg {
+    position: relative;
+    z-index: 1;
+    color: inherit;
+    width: 24px;
+    height: 24px;
+  }
 }
 
-.navBtn .icon,
-.navBtn svg {
-  color: rgb(var(--primary-color-rgb), .5);
-  width: 24px;
-  height: 24px;
-}
-
-.navBtn.active .icon,
-.navBtn.active svg {
-  color: var(--branded-color);
-}
-
-.active {
-  background: rgb(var(--branded-color-rgb), 0.05);
-  opacity: 1;
-  width: 80px;
-  height: 50px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
+.navBtn.active {
   color: var(--branded-color);
 }
