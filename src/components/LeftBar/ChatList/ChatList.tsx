@@ -1,6 +1,5 @@
 import { ExtendedChatListProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
-import { renderEmojisToJSX } from "@utils/emoji";
 import { observer } from "mobx-react";
 import { useMemo } from "preact/hooks";
 import ChatItem from "./ChatItem/ChatItem";
@@ -23,8 +22,7 @@ const ChatListComponent = ({
 
 		return (
 			<div className={styles.noChatsContainer}>
-				<div>{renderEmojisToJSX("😔")}</div>
-				<div className={styles.mainText}>Oops! There's nothing to see</div>
+				<div className={styles.mainText}>Can't find the right contact here?</div>
 				<div className={styles.subText}>Start a new chat?</div>
 			</div>
 		);
