@@ -1,0 +1,240 @@
+.settingsMenu {
+  background: var(--background-chat-list-color);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0 0 0;
+  border-right: 1px solid #23242a;
+  box-sizing: border-box;
+  box-shadow: 1px 0 0 0 #23242a;
+  z-index: 2;
+}
+
+.settingsHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 24px;
+}
+
+.settingsHeader {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  background: rgb(var(--primary-color-rgb), .05);
+  border-radius: 10px;
+  margin: 0 10px 18px;
+  padding: 8px 8px;
+  gap: 18px;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+
+.profileAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  border: 2px solid #222;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.profileName {
+  font-weight: 700;
+  font-size: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.profileUsername {
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--gray-color);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.profileEmail {
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--gray-color);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.profileArrow {
+  margin-left: auto;
+  color: #888;
+  font-size: 1.5rem;
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  transition: opacity 0.18s;
+}
+
+.profileCard:hover .profileArrow,
+.profileCard:focus .profileArrow {
+  opacity: 1;
+}
+
+.categoriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.menuItem, .menuItemActive {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0px 8px;
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 0 10px 2px;
+  transition: background 0.18s, color 0.18s;
+  position: relative;
+  height: 48px;
+}
+
+.menuItem:hover, .menuItem:focus {
+  background: rgb(var(--primary-color-rgb), .07);
+}
+
+.menuItemActive {
+  background: rgb(var(--primary-color-rgb), .05);
+  color: var(--primary-color);
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.menuIconBg {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+}
+
+.menuArrow {
+  margin-left: auto;
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+  transition: opacity 0.18s;
+}
+
+.menuItem:hover .menuArrow,
+.menuItemActive .menuArrow {
+  opacity: 1;
+}
+
+.supportDivider {
+  margin-top: 18px !important;
+  margin-bottom: 10px !important;
+  background: #23242a;
+}
+
+@media (max-width: 900px) {
+  .settingsMenu {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #23242a;
+    padding: 0;
+    overflow-x: auto;
+    box-shadow: none;
+    z-index: 2;
+  }
+
+  .settingsHeaderRow {
+    margin: 0 12px 0 12px;
+  }
+
+  .settingsHeader {
+    margin-left: 12px;
+    font-size: 1.5rem;
+  }
+
+  .profileCard {
+    margin: 0 8px 12px 8px;
+    padding: 12px 10px;
+    border-radius: 14px;
+    min-width: 0;
+  }
+  
+  .menuItem, .menuItemActive {
+    font-size: 16px;
+    padding: 12px 10px;
+    margin: 0 4px 0 4px;
+    border-radius: 10px;
+    min-width: 120px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 600px) {
+  .settingsMenu {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #23242a;
+    padding: 0;
+    overflow-x: auto;
+    box-shadow: none;
+    z-index: 2;
+  }
+
+  .settingsHeaderRow {
+    margin: 0 4px 0 4px;
+  }
+
+  .settingsHeader {
+    margin-left: 8px;
+    font-size: 1.1rem;
+  }
+
+  .profileCard {
+    margin: 0 2px 8px 2px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    min-width: 0;
+  }
+
+  .menuItem, .menuItemActive {
+    font-size: 15px;
+    padding: 10px 6px;
+    margin: 0 2px 0 2px;
+    border-radius: 8px;
+    min-width: 90px;
+    min-height: 38px;
+  }
+} 
