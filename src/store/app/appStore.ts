@@ -1,22 +1,22 @@
-import type { WebSocketClient } from "@/gateway/webSocketClient";
 import { apiMethods } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
-import {
+import type {
 	APIChannel,
 	APIMessage,
 	APIUser,
 	RESTGetAPIMessageListQuery,
 } from "foxochat.js";
 import {
-	IObservableArray,
 	action,
 	configure,
+	type IObservableArray,
 	observable,
 	reaction,
 	runInAction,
 } from "mobx";
+import type { WebSocketClient } from "@/gateway/webSocketClient";
 import * as apiService from "./apiService";
-import { CachedChat, CachedUser } from "./metaCache";
+import type { CachedChat, CachedUser } from "./metaCache";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
 import * as wsService from "./websocketService";
 
@@ -295,11 +295,11 @@ export class AppStore {
 	@action
 	async setCurrentChannel(channelId: number | null) {
 		const previousChannelId = this.currentChannelId;
-		
+
 		if (previousChannelId === channelId) {
 			return;
 		}
-		
+
 		this.currentChannelId = channelId;
 
 		if (previousChannelId !== null) {
@@ -320,12 +320,12 @@ export class AppStore {
 				this.activeRequests.delete(channelId.toString());
 				this.isInitialLoad.set(channelId, true);
 			});
-			
+
 			const existingMessages = this.messagesByChannelId.get(channelId);
 			if (!existingMessages || existingMessages.length === 0) {
 				await this.fetchInitialMessages(channelId);
 			}
-			
+
 			runInAction(() => {
 				this.isInitialLoad.set(channelId, false);
 			});
@@ -501,7 +501,7 @@ export class AppStore {
 	@action
 	resetStore() {
 		Logger.info("Resetting app store state...");
-		
+
 		this.messagesByChannelId.clear();
 		this.hasMoreMessagesByChannelId.clear();
 		this.isInitialLoad.clear();
@@ -519,13 +519,13 @@ export class AppStore {
 		this.unreadCount.clear();
 		this.channelParticipantsCount.clear();
 		this.userStatuses.clear();
-		
+
 		if (this.wsClient) {
 			Logger.info("Closing WebSocket connection...");
 			this.wsClient.disconnect();
 			this.wsClient = null;
 		}
-		
+
 		Logger.info("App store reset successfully");
 	}
 
