@@ -9,6 +9,7 @@ import {
     RESTGetAPIMessageListQuery,
     RESTPostAPIMessageBody,
     RESTPutAPIMessageAttachmentsBody,
+    RESTPatchAPIUserBody,
 } from "foxochat.js";
 
 export const getAuthToken = (): string | null =>
@@ -78,7 +79,7 @@ export const apiMethods = {
 
     getCurrentUser: async (): Promise<APIUser> =>
         withErrorHandling(() => client.api.user.current()),
-    editUser: (body: { username?: string; email?: string }) =>
+    editUser: (body: RESTPatchAPIUserBody) =>
         client.api.user.edit(body),
     deleteUser: async (body: { password: string }) => {
         await client.api.user.delete(body);
