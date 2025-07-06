@@ -106,7 +106,6 @@
 .sidebarChats {
   flex-grow: 1;
   overflow-y: auto;
-  margin-top: 12px;
   
   .chatList {
     padding: 16px;
@@ -343,4 +342,40 @@
   transform: translateX(-30px);
   position: absolute;
   animation: slideIn 0.7s ease-in-out forwards;
+}
+
+.sidebarAnimatedSection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.35s cubic-bezier(.4,0,.2,1),
+              transform 0.35s cubic-bezier(.4,0,.2,1),
+              filter 0.35s cubic-bezier(.4,0,.2,1),
+              background 0.35s cubic-bezier(.4,0,.2,1);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  filter: blur(24px);
+  background: rgba(20,20,20,0.18);
+  box-shadow: 0 0 32px 0 rgba(0,0,0,0.10);
+}
+
+.sidebarAnimatedSection.visible {
+  opacity: 1;
+  pointer-events: auto;
+  filter: blur(0);
+  background: rgba(20,20,20,0.10);
+}
+
+.sidebarAnimatedSection.slideLeft {
+  transform: translateX(-48px);
+}
+.sidebarAnimatedSection.slideRight {
+  transform: translateX(48px);
+}
+.sidebarAnimatedSection.visible.slideLeft,
+.sidebarAnimatedSection.visible.slideRight {
+  transform: translateX(0);
 }

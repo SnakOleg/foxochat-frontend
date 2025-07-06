@@ -11,6 +11,7 @@ import appStore from "@store/app";
 import type { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "preact/hooks";
+import SettingsHome from "@components/Settings/Home/SettingsHome";
 import * as styles from "./Sidebar.module.scss";
 
 const MIN_SIDEBAR_WIDTH = 310;
@@ -25,6 +26,10 @@ const SidebarComponent = ({
 	isMobile = false,
 	setMobileView = () => undefined,
 	setChatTransition = () => undefined,
+	activeTab = "chats",
+	onTabChange,
+	selectedSection = "profile",
+	onSelectSection,
 }: SidebarProps) => {
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const [showCreateDropdown, setShowCreateDropdown] = useState(false);
@@ -204,43 +209,77 @@ const SidebarComponent = ({
 		parseInt(localStorage.getItem("sidebarWidth") ?? "", 10) ===
 		STORAGE_COLLAPSED_VALUE;
 
+	const handleFooterNav = (tab: "chats" | "settings" | "contacts") => {
+		if (tab === "contacts") return;
+		if (onTabChange) onTabChange(tab as "chats" | "settings");
+	};
+
 	return (
 		<div
 			ref={sidebarRef}
 			className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
 			style={isMobile ? { width: "100%" } : { width: `${width}px` }}
 		>
-			<div style={{ position: "relative" }}>
-				<ChatHeader
-					currentUser={currentUser}
-					onAdd={() => setShowCreateDropdown(true)}
-					onEdit={() => {}}
-				/>
-				{showCreateDropdown && (
-					<CreateDropdown
-						onSelect={(type) => {
-							setShowCreateModal(type);
-							setShowCreateDropdown(false);
-						}}
-						onClose={() => setShowCreateDropdown(false)}
+			<div style={{ position: "relative", height: "100%" }}>
+				<div
+					className={
+						styles.sidebarAnimatedSection +
+						" " + styles.slideRight +
+						(activeTab === "settings" ? " " + styles.visible : "")
+					}
+					style={{ zIndex: activeTab === "settings" ? 11 : 10 }}
+				>
+					<SettingsHome
+						selected={selectedSection}
+						onSelect={onSelectSection || (() => {})}
+						currentUser={currentUser}
 					/>
-				)}
-			</div>
-			<SearchBar
-				onJoinChannel={async (channelId: number | null) => {
-					await appStore.setCurrentChannel(channelId);
-					if (channelId && window.location.pathname === "/channels") {
-						window.history.replaceState(null, "", `/channels/#${channelId}`);
+				</div>
+				<div
+					className={
+						styles.sidebarAnimatedSection +
+						" " + styles.slideLeft +
+						(activeTab === "chats" ? " " + styles.visible : "")
 					}
-					if (isMobile) {
-						setMobileView("chat");
-					}
-				}}
-			/>
-			<div className={styles.sidebarChats}>
-				<ChatList chats={channels} currentUser={currentUser} />
+					style={{ zIndex: activeTab === "chats" ? 11 : 10 }}
+				>
+					<div style={{ position: "relative" }}>
+						<ChatHeader
+							currentUser={currentUser}
+							onAdd={() => setShowCreateDropdown(true)}
+							onEdit={() => {}}
+						/>
+						{showCreateDropdown && (
+							<CreateDropdown
+								onSelect={(type) => {
+									setShowCreateModal(type);
+									setShowCreateDropdown(false);
+								}}
+								onClose={() => setShowCreateDropdown(false)}
+							/>
+						)}
+					</div>
+					<SearchBar
+						onJoinChannel={async (channelId: number | null) => {
+							await appStore.setCurrentChannel(channelId);
+							if (channelId && window.location.pathname === "/channels") {
+								window.history.replaceState(
+									null,
+									"",
+									`/channels/#${channelId}`,
+								);
+							}
+							if (isMobile) {
+								setMobileView("chat");
+							}
+						}}
+					/>
+					<div className={styles.sidebarChats}>
+						<ChatList chats={channels} currentUser={currentUser} />
+					</div>
+				</div>
 			</div>
-			<SidebarFooter />
+			<SidebarFooter active={activeTab} onNav={handleFooterNav} />
 			{!isMobile && (
 				<div className={styles.resizer} onMouseDown={handleMouseDown} />
 			)}
