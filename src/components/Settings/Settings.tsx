@@ -45,7 +45,7 @@ export default function Settings({ currentUser, selectedSection = "profile" }: S
     };
 
     return (
-        <div className={styles.settingsContent}>
+        <div className={styles.settingsContent} style={{ position: 'relative', minHeight: '100vh' }}>
             <SectionHeader
                 section={selectedSection}
                 title={SECTION_TITLES[selectedSection] || "Settings"}

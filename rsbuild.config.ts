@@ -3,8 +3,11 @@ import { pluginPreact } from "@rsbuild/plugin-preact";
 import { pluginSass } from "@rsbuild/plugin-sass";
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
 import { pluginSvgr } from '@rsbuild/plugin-svgr';
+import { readFileSync } from "fs";
 
 const isDevelopment = process.env.NODE_ENV === "development";
+const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
+const version = pkg.version;
 
 export default defineConfig({
 	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass(), pluginSvgr()],
@@ -30,6 +33,7 @@ export default defineConfig({
 					process.env.CDN_BASE_URL || "https://media.foxochat.app/attachments/",
 				apiUrl: process.env.API_URL || "https://api.foxochat.app/",
 			}),
+      __APP_VERSION__: JSON.stringify(version),
 		},
 		preEntry: isDevelopment ? ["preact/debug"] : [],
 	},
