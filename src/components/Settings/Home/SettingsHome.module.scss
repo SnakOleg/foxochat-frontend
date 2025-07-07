@@ -5,8 +5,6 @@
   padding: 32px 0 0 0;
   border-right: 1px solid #23242a;
   box-sizing: border-box;
-  box-shadow: 1px 0 0 0 #23242a;
-  z-index: 2;
 }
 
 .settingsHeaderRow {
@@ -39,8 +37,6 @@
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
-  border: 2px solid #222;
 }
 
 .profileInfo {
@@ -188,7 +184,7 @@
     border-radius: 14px;
     min-width: 0;
   }
-  
+
   .menuItem, .menuItemActive {
     font-size: 16px;
     padding: 12px 10px;
