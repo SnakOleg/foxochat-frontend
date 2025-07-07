@@ -292,6 +292,7 @@ export interface TooltipProps {
     text: string;
     className?: string;
     position?: "top" | "bottom" | "left" | "right" | "auto";
+    show: Boolean;
 }
 
 export interface DefaultAvatarProps {

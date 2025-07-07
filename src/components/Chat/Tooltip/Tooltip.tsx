@@ -16,7 +16,8 @@ export function Tooltip({
 	text,
 	className,
 	position = "auto",
-}: TooltipProps): JSX.Element {
+	show,
+}: TooltipProps & { show?: boolean }): JSX.Element {
 	const [isMounted, setIsMounted] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -84,7 +85,20 @@ export function Tooltip({
 		}
 	}, [isMounted, position]);
 
+	useEffect(() => {
+		if (typeof show === "boolean") {
+			if (show) {
+				setIsMounted(true);
+				requestAnimationFrame(() => setIsVisible(true));
+			} else {
+				setIsVisible(false);
+				setTimeout(() => setIsMounted(false), 200);
+			}
+		}
+	}, [show]);
+
 	const showTooltip = () => {
+		if (typeof show === "boolean") return;
 		setIsMounted(true);
 		requestAnimationFrame(() => {
 			setIsVisible(true);
@@ -92,6 +106,7 @@ export function Tooltip({
 	};
 
 	const hideTooltip = () => {
+		if (typeof show === "boolean") return;
 		setIsVisible(false);
 		setTimeout(() => {
 			setIsMounted(false);
