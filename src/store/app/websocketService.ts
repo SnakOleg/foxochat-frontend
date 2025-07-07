@@ -10,6 +10,10 @@ export function clearAuthAndRedirect(): void {
 	window.location.href = "/login";
 }
 
+let reconnectTimeout: number | null = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 10;
+
 export async function initializeWebSocket(this: AppStore): Promise<void> {
 	if (this.wsClient && this.isWsInitialized) {
 		Logger.info("WebSocket already initialized");
@@ -38,11 +42,27 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 						this.connectionError = "Connection timeout, reconnecting...";
 						this.isWsInitialized = false;
 					});
+					if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+						reconnectAttempts++;
+						if (reconnectTimeout) clearTimeout(reconnectTimeout);
+						reconnectTimeout = window.setTimeout(() => {
+							this.wsClient = null;
+							this.initializeWebSocket();
+						}, 3000);
+					}
 				} else {
 					runInAction(() => {
 						this.connectionError = `Connection closed with code ${event.code}${event.reason ? `: ${event.reason}` : ""}`;
 						this.isWsInitialized = false;
 					});
+					if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+						reconnectAttempts++;
+						if (reconnectTimeout) clearTimeout(reconnectTimeout);
+						reconnectTimeout = window.setTimeout(() => {
+							this.wsClient = null;
+							this.initializeWebSocket();
+						}, 3000);
+					}
 				}
 			},
 			() => {
@@ -66,6 +86,8 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 			if (this.currentChannelId) {
 				this.handleHistorySync();
 			}
+
+			reconnectAttempts = 0;
 		} catch (err: unknown) {
 			Logger.error(`Failed to connect WebSocket: ${err}`);
 			runInAction(() => {
