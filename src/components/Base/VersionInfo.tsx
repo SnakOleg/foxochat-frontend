@@ -1,36 +1,29 @@
-import { useEffect, useState } from "preact/hooks";
+import { useState } from "preact/hooks";
 import { Tooltip } from "@/components/Chat/Tooltip/Tooltip";
 
+// @ts-ignore
+declare const __GIT_BRANCH__: string;
+// @ts-ignore
+declare const __GIT_REVISION__: string;
+// @ts-ignore
+declare const __GIT_COMMIT_COUNT__: string;
+// @ts-ignore
+declare const __APP_VERSION__: string;
+
+const version = `FoxoChat ${__GIT_BRANCH__ === "production" ? "Stable" : "Beta"} v${__APP_VERSION__} (${__GIT_COMMIT_COUNT__}, ${__GIT_REVISION__})`;
+
 const VersionInfo = () => {
-	const [appVersion, setAppVersion] = useState("");
-	const [buildNumber, setBuildNumber] = useState("");
-
-	useEffect(() => {
-		fetch("/version")
-			.then((res) => res.text())
-			.then((text) => {
-				const match = text.match(/^(.*?) \((\d+),/);
-				if (match) {
-					setAppVersion(match[1] || "");
-					setBuildNumber(match[2] || "");
-				} else {
-					setAppVersion(text);
-				}
-			})
-			.catch(() => setAppVersion(""));
-	}, []);
-
 	const [showTooltip, setShowTooltip] = useState(false);
 	const handleCopy = () => {
-		const text = `FoxoChat Web ${appVersion} (${buildNumber})`;
-		navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(version);
 		setShowTooltip(true);
 		setTimeout(() => setShowTooltip(false), 1200);
 	};
-
+    
 	const handleMouseDown = (e: MouseEvent) => {
 		e.preventDefault();
 	};
+    
 	return (
 		<Tooltip text="Copied!" position="top" show={showTooltip}>
 			<div
@@ -47,8 +40,7 @@ const VersionInfo = () => {
 				onMouseDown={handleMouseDown}
 				title="Click to copy version"
 			>
-				FoxoChat Web {appVersion && `v${appVersion}`}{" "}
-				{buildNumber && `(${buildNumber})`}
+				{version}
 			</div>
 		</Tooltip>
 	);
