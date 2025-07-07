@@ -189,8 +189,6 @@ export class AppStore {
 					channelId,
 					(this.unreadCount.get(channelId) || 0) + 1,
 				);
-			} else if (this.currentChannelId === channelId) {
-				this.playSendMessageSound();
 			}
 		}
 
@@ -279,9 +277,16 @@ export class AppStore {
 	}
 
 	@action
-	deleteMessage(messageId: number) {
+	async deleteMessage(messageId: number) {
 		const cid = this.currentChannelId;
 		if (!cid) return;
+
+		try {
+			await apiMethods.deleteMessage(cid, messageId);
+		} catch (e) {
+			Logger.error(`Failed to delete message via API: ${e}`);
+			return;
+		}
 
 		const msgs = this.messagesByChannelId.get(cid);
 		if (msgs) {
