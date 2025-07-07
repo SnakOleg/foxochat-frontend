@@ -13,6 +13,9 @@ export function clearAuthAndRedirect(): void {
 let reconnectTimeout: number | null = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 10;
+const BASE_RECONNECT_DELAY = 3000;
+const MAX_RECONNECT_DELAY = 30000;
+let reconnectDelay = BASE_RECONNECT_DELAY;
 
 export async function initializeWebSocket(this: AppStore): Promise<void> {
 	if (this.wsClient && this.isWsInitialized) {
@@ -42,26 +45,38 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 						this.connectionError = "Connection timeout, reconnecting...";
 						this.isWsInitialized = false;
 					});
+					if (this.wsClient) {
+						try { this.wsClient.disconnect(); } catch (e) {}
+						this.wsClient = null;
+					}
 					if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
 						reconnectAttempts++;
 						if (reconnectTimeout) clearTimeout(reconnectTimeout);
 						reconnectTimeout = window.setTimeout(() => {
-							this.wsClient = null;
+							reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
 							this.initializeWebSocket();
-						}, 3000);
+						}, reconnectDelay);
+					} else {
+						Logger.error("Max reconnect attempts reached. Please reload the page.");
 					}
 				} else {
 					runInAction(() => {
 						this.connectionError = `Connection closed with code ${event.code}${event.reason ? `: ${event.reason}` : ""}`;
 						this.isWsInitialized = false;
 					});
+					if (this.wsClient) {
+						try { this.wsClient.disconnect(); } catch (e) {}
+						this.wsClient = null;
+					}
 					if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
 						reconnectAttempts++;
 						if (reconnectTimeout) clearTimeout(reconnectTimeout);
 						reconnectTimeout = window.setTimeout(() => {
-							this.wsClient = null;
+							reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
 							this.initializeWebSocket();
-						}, 3000);
+						}, reconnectDelay);
+					} else {
+						Logger.error("Max reconnect attempts reached. Please reload the page.");
 					}
 				}
 			},
@@ -88,6 +103,7 @@ export async function initializeWebSocket(this: AppStore): Promise<void> {
 			}
 
 			reconnectAttempts = 0;
+			reconnectDelay = BASE_RECONNECT_DELAY;
 		} catch (err: unknown) {
 			Logger.error(`Failed to connect WebSocket: ${err}`);
 			runInAction(() => {
