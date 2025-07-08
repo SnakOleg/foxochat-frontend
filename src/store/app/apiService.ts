@@ -135,22 +135,13 @@ export async function sendMessage(
 			attachmentIds = atts.map((att) => att.id);
 		}
 
-		const apiMsg = await apiMethods.createMessage(
+		await apiMethods.createMessage(
 			channelId,
 			content,
 			attachmentIds,
 		);
-		const message = transformToMessage(apiMsg);
 
 		runInAction(() => {
-			let messages = this.messagesByChannelId.get(channelId);
-			if (!messages) {
-				messages = observable.array<APIMessage>([]);
-				this.messagesByChannelId.set(channelId, messages);
-			}
-			if (!messages.some((m) => m.id === message.id)) {
-				messages.push(message);
-			}
 			this.isSendingMessage = false;
 		});
 	} catch (_error) {
