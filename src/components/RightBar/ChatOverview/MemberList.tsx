@@ -1,10 +1,8 @@
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import { config } from "@/lib/config/endpoints";
-import { MemberListProps } from "@interfaces/interfaces";
-import { apiMethods } from "@services/API/apiMethods";
+import { MemberListProps} from "@interfaces/interfaces";
 import appStore from "@store/app";
 import { classNames } from "@utils/functions";
-import { APIMember } from "foxochat.js";
 import { observer } from "mobx-react";
 import { useEffect, useState, useMemo } from "preact/compat";
 import Loading from "../MessageList/MessageLoader/MessageLoader";
@@ -25,28 +23,8 @@ const formatLastSeen = (timestamp: number, currentTime: number): string => {
                         : new Date(timestamp).toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
-const MemberListComponent = ({ channelId }: MemberListProps) => {
-    const [members, setMembers] = useState<APIMember[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const MemberListComponent = ({ members, loading, error }: MemberListProps) => {
     const [currentTime, setCurrentTime] = useState(Date.now());
-
-    useEffect(() => {
-        const fetchMembers = async () => {
-            try {
-                setLoading(true);
-                const membersList = await apiMethods.listChannelMembers(channelId);
-                setMembers(membersList);
-            } catch (err) {
-                console.error("Failed to fetch channel members:", err);
-                setError("Failed to load members");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        void fetchMembers();
-    }, [channelId]);
 
     useEffect(() => {
         const interval = setInterval(() => {

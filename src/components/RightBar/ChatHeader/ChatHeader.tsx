@@ -1,58 +1,27 @@
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
 import type { ChatHeaderProps } from "@interfaces/interfaces";
-import { apiMethods } from "@services/API/apiMethods";
-import appStore from "@store/app";
-import { autorun } from "mobx";
-import { useEffect, useState, useMemo } from "preact/hooks";
 import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg";
 import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg";
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import * as style from "./ChatHeader.module.scss";
 import { observer } from "mobx-react";
 
+interface ChatHeaderPropsWithCounts extends ChatHeaderProps {
+  participantsCount: number;
+  onlineCount: number;
+}
+
 const ChatHeader = ({
-                        chat,
-                        isMobile,
-                        onBack,
-                        showOverview,
-                        setShowOverview,
-                    }: ChatHeaderProps) => {
-    const { id, name, display_name, icon, created_at } = chat;
-    const nameToDisplay = display_name || name;
-    const [participantsCount, setParticipantsCount] = useState<number>(0);
-    const [memberIds, setMemberIds] = useState<number[]>([]);
-
-    useEffect(() => {
-        const fetchMembers = async () => {
-            if (appStore.channelParticipantsCount.has(id)) {
-                setParticipantsCount(appStore.channelParticipantsCount.get(id) ?? 0);
-            } else {
-                try {
-                    const members = await apiMethods.listChannelMembers(id);
-                    const count = members.length || 0;
-                    appStore.channelParticipantsCount.set(id, count);
-                    setParticipantsCount(count);
-                    setMemberIds(members.map(m => m.user.id));
-                } catch (error) {
-                    setMemberIds([]);
-                }
-            }
-        };
-        if (id) {
-            void fetchMembers();
-        }
-        const disposer = autorun(() => {
-            const count = appStore.channelParticipantsCount.get(id) ?? 0;
-            setParticipantsCount(count);
-        });
-        return () => {
-            disposer();
-        };
-    }, [id]);
-
-    const onlineCount = useMemo(() => {
-        return memberIds.filter(userId => appStore.userStatuses.get(userId) === 1).length;
-    }, [memberIds, appStore.userStatuses]);
+  chat,
+  isMobile,
+  onBack,
+  showOverview,
+  setShowOverview,
+  participantsCount,
+  onlineCount,
+}: ChatHeaderPropsWithCounts) => {
+  const { name, display_name, icon, created_at } = chat;
+  const nameToDisplay = display_name || name;
 
     return (
         <div className={style.chatHeader}>

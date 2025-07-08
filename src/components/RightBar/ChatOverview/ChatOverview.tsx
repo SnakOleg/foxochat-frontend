@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "preact/hooks";
 import * as styles from "./ChatOverview.module.scss";
 import MemberList from "./MemberList";
 import { ChatOverviewProps } from "@interfaces/interfaces";
+import { APIMember } from "foxochat.js";
 
 import EditIcon from "@/assets/icons/right-bar/chat/chat-overview/edit.svg";
 import MuteIcon from "@/assets/icons/right-bar/chat/chat-overview/mute.svg";
@@ -33,21 +34,29 @@ const ChatOverview = ({ channel, isOwner, visible = true, className }: ChatOverv
         }
     }, [channel.id, isOwner]);
 
-    const [onlineCount, setOnlineCount] = useState<number>(0);
+    const [members, setMembers] = useState<APIMember[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchOnlineCount = async () => {
+        let mounted = true;
+        const fetchMembers = async () => {
             try {
-                const members = await apiMethods.listChannelMembers(channel.id);
-                const online = members.filter((m) => m.user.status === 1).length;
-                setOnlineCount(online);
+                setLoading(true);
+                setError(null);
+                const membersList = await apiMethods.listChannelMembers(channel.id);
+                if (mounted) setMembers(membersList);
             } catch (err) {
-                console.error("Failed to fetch channel members:", err);
+                if (mounted) setError("Failed to load members");
+            } finally {
+                if (mounted) setLoading(false);
             }
         };
-
-        void fetchOnlineCount();
+        void fetchMembers();
+        return () => { mounted = false; };
     }, [channel.id]);
+
+    const onlineCount = members.filter((m) => m.user.status === 1).length;
 
     return (
         <div
@@ -116,7 +125,7 @@ const ChatOverview = ({ channel, isOwner, visible = true, className }: ChatOverv
                     </div>
                 </div>
             </div>
-            <MemberList channelId={channel.id}/>
+            <MemberList members={members} loading={loading} error={error}/>
         </div>
     );
 };
