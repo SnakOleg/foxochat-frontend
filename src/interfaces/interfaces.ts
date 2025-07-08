@@ -292,7 +292,7 @@ export interface TooltipProps {
     text: string;
     className?: string;
     position?: "top" | "bottom" | "left" | "right" | "auto";
-    show: Boolean;
+    show?: boolean;
 }
 
 export interface DefaultAvatarProps {
@@ -303,7 +303,9 @@ export interface DefaultAvatarProps {
 }
 
 export interface MemberListProps {
-    channelId: number;
+    members: APIMember[];
+    loading: boolean;
+    error: string | null;
 }
 
 export interface Gateway {
