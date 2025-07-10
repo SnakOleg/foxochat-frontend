@@ -27,7 +27,7 @@ const ChatWindowComponent = ({
 	const anchorOffset = useRef<number>(0);
 	const scrollTimeout = useRef<number | null>(null);
 	const isMounted = useRef(true);
-	const [showOverview, setShowOverview] = useState(true);
+	const [showOverview, setShowOverview] = useState(false);
 
 	const apiChannel = channel as unknown as APIChannel;
 	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
@@ -301,6 +301,13 @@ const ChatWindowComponent = ({
 		}
 	};
 
+	const participantsCount = apiChannel.member_count ?? 0;
+	const onlineCount = appStore.users.filter((u) => {
+		if (Array.isArray(u.channels) && !u.channels.includes(apiChannel.id)) return false;
+		const status = appStore.userStatuses.get(u.id) ?? u.status;
+		return status === 1 || String(status).toLowerCase() === "online";
+	}).length;
+
 	return (
 		<div className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}>
 			<div className={styles.chatWindow}>
@@ -315,6 +322,8 @@ const ChatWindowComponent = ({
 						onBack={isMobile ? onBack : undefined}
 						showOverview={showOverview}
 						setShowOverview={setShowOverview}
+						participantsCount={participantsCount}
+						onlineCount={onlineCount}
 					/>
 					<MessageList
 						messages={messages}
