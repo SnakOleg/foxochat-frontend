@@ -1,6 +1,6 @@
 [package]
 name = "foxochat"
-version = "0.1.0"
+version = "1.0.0"
 description = "FoxoChat Desktop"
 authors = ["FoxoCorp"]
 license = "MIT"
