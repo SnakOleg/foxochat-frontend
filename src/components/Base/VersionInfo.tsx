@@ -12,18 +12,18 @@ declare const __APP_VERSION__: string;
 
 const version = `FoxoChat ${__GIT_BRANCH__ === "production" ? "Stable" : "Beta"} v${__APP_VERSION__} (${__GIT_COMMIT_COUNT__}, ${__GIT_REVISION__})`;
 
-const VersionInfo = () => {
+export default function VersionInfo() {
 	const [showTooltip, setShowTooltip] = useState(false);
 	const handleCopy = () => {
-        navigator.clipboard.writeText(version);
+		void navigator.clipboard.writeText(version);
 		setShowTooltip(true);
 		setTimeout(() => setShowTooltip(false), 1200);
 	};
-    
+
 	const handleMouseDown = (e: MouseEvent) => {
 		e.preventDefault();
 	};
-    
+
 	return (
 		<Tooltip text="Copied!" position="top" show={showTooltip}>
 			<div
@@ -44,6 +44,4 @@ const VersionInfo = () => {
 			</div>
 		</Tooltip>
 	);
-};
-
-export default VersionInfo;
+}
