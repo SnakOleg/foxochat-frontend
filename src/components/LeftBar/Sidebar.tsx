@@ -13,7 +13,6 @@ import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "preact/hooks";
 import SettingsHome from "@components/Settings/Home/SettingsHome";
 import * as styles from "./Sidebar.module.scss";
-import VersionInfo from "@/components/Base/VersionInfo";
 
 const MIN_SIDEBAR_WIDTH = 310;
 const DEFAULT_DESKTOP_WIDTH = 420;
@@ -234,6 +233,7 @@ const SidebarComponent = ({
 						selected={selectedSection}
 						onSelect={onSelectSection || (() => {})}
 						currentUser={currentUser}
+						isMobile={isMobile}
 					/>
 				</div>
 				<div
@@ -276,14 +276,21 @@ const SidebarComponent = ({
 						}}
 					/>
 					<div className={styles.sidebarChats}>
-						<ChatList chats={channels} currentUser={currentUser} />
+						<ChatList
+							chats={[...channels]}
+							currentUser={currentUser}
+							{...(isMobile ? { onOpenChat: () => setMobileView("chat") } : {})}
+						/>
 					</div>
 				</div>
 			</div>
-			{activeTab === "settings" && (
-				<VersionInfo />
+			{!isMobile && (
+				<SidebarFooter
+					active={activeTab}
+					onNav={handleFooterNav}
+					isMobile={false}
+				/>
 			)}
-			<SidebarFooter active={activeTab} onNav={handleFooterNav} />
 			{!isMobile && (
 				<div className={styles.resizer} onMouseDown={handleMouseDown} />
 			)}

@@ -23,12 +23,17 @@ import { fetchFileAndGenerateThumbHash } from "@/utils/functions";
 import { ChatAvatar } from "./ChatAvatar";
 import * as styles from "./ChatItem.module.scss";
 
+interface ChatItemWithMobileProps extends ExtendedChatItemProps {
+	onOpenChat?: () => void;
+}
+
 const ChatItemComponent = ({
 	chat,
 	isActive,
 	isCollapsed = false,
 	currentUser,
-}: ExtendedChatItemProps) => {
+	onOpenChat,
+}: ChatItemWithMobileProps) => {
 	const lastMessage = chat.last_message;
 	const rawChat = toJS(chat);
 	const nameToDisplay = chat.display_name || chat.name;
@@ -168,8 +173,9 @@ const ChatItemComponent = ({
 	const isOwner = chat.owner?.id === currentUser;
 
 	const handleClick = () => {
-		appStore.setCurrentChannel(chat.id);
+		void appStore.setCurrentChannel(chat.id);
 		window.history.replaceState(null, "", `/channels/#${chat.id}`);
+		if (onOpenChat) onOpenChat();
 	};
 
 	const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {

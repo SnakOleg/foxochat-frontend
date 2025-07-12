@@ -2,15 +2,11 @@ import ContactsIcon from "@assets/icons/left-bar/navigation/bottom/contacts.svg?
 import ChatsIcon from "@assets/icons/left-bar/navigation/bottom/chats.svg?react";
 import SettingsIcon from "@assets/icons/left-bar/navigation/bottom/settings.svg?react";
 import * as styles from "./SidebarFooter.module.scss";
+import type { SidebarFooterProps } from "@interfaces/interfaces";
 
-interface SidebarFooterProps {
-  active?: "contacts" | "chats" | "settings";
-  onNav?: (nav: "contacts" | "chats" | "settings") => void;
-}
-
-const SidebarFooter = ({ active = "chats", onNav }: SidebarFooterProps) => {
+const SidebarFooter = ({ active = "chats", onNav, isMobile = false, className }: SidebarFooterProps) => {
   return (
-    <div className={styles.navFooter}>
+    <div className={`${styles.navFooter} ${isMobile ? styles.mobile : ""} ${className || ""}`}>
       <button
         className={styles.navBtn + (active === "contacts" ? " " + styles.active : "")}
         onClick={() => onNav?.("contacts")}
