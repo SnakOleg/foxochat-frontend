@@ -5,6 +5,7 @@ import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg";
 import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
 import * as style from "./ChatHeader.module.scss";
 import { observer } from "mobx-react";
+import ArrowBackIcon from '@/assets/icons/right-bar/chat/chatHeader/arrow-back.svg';
 
 interface ChatHeaderPropsWithCounts extends ChatHeaderProps {
   participantsCount: number;
@@ -26,8 +27,8 @@ const ChatHeader = ({
     return (
         <div className={style.chatHeader}>
             {isMobile && onBack && (
-                <button className={style.backButton} onClick={onBack}>
-                    ←
+                <button className={style.backButton} onClick={onBack} aria-label="Back">
+                    <img src={ArrowBackIcon} alt="Back" />
                 </button>
             )}
             {icon ? (
