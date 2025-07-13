@@ -1,15 +1,7 @@
 import { Button } from "@components/Base/Buttons/Button";
-import { JSX } from "preact";
 import { useEffect } from "preact/hooks";
 import * as style from "./Modal.module.scss";
-
-interface ModalProps {
-	title: string;
-	description: string;
-	onClose: () => void;
-	actionButtons?: JSX.Element[];
-	icon?: string | undefined;
-}
+import type { ModalProps } from "@interfaces/interfaces";
 
 export const Modal = ({
 	title,

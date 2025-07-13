@@ -1,0 +1,41 @@
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 24px;
+  border-bottom: 1px solid rgb(var(--primary-color-rgb), .15);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.sectionHeaderIcon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionHeaderTitle {
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.settingsSectionIconBg {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 

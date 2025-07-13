@@ -11,12 +11,60 @@ const tryPositions: Array<"top" | "bottom" | "left" | "right"> = [
 	"left",
 ];
 
+function computeTooltipPosition(
+	wrapper: HTMLElement,
+	tooltip: HTMLElement,
+	position: "top" | "bottom" | "left" | "right" | "auto"
+) {
+	const spacing = 8;
+	const wrapperRect = wrapper.getBoundingClientRect();
+	const parentRect = wrapper.offsetParent?.getBoundingClientRect() ?? { top: 0, left: 0 };
+	const relTop = wrapperRect.top - parentRect.top;
+	const relLeft = wrapperRect.left - parentRect.left;
+	const parentWidth = wrapper.offsetParent ? (wrapper.offsetParent as HTMLElement).offsetWidth : window.innerWidth;
+	const parentHeight = wrapper.offsetParent ? (wrapper.offsetParent as HTMLElement).offsetHeight : window.innerHeight;
+
+	let finalPosition: "top" | "bottom" | "left" | "right" = position !== "auto" ? position : (
+		tryPositions.find((pos) => {
+			switch (pos) {
+				case "top": return relTop >= tooltip.offsetHeight + spacing;
+				case "bottom": return relTop + wrapperRect.height + tooltip.offsetHeight + spacing <= parentHeight;
+				case "left": return relLeft >= tooltip.offsetWidth + spacing;
+				case "right": return relLeft + wrapperRect.width + tooltip.offsetWidth + spacing <= parentWidth;
+			}
+		}) || "top"
+	);
+
+	let top = 0, left = 0;
+	switch (finalPosition) {
+		case "top":
+			top = relTop - tooltip.offsetHeight - spacing;
+			left = relLeft + wrapperRect.width / 2 - tooltip.offsetWidth / 2;
+			break;
+		case "bottom":
+			top = relTop + wrapperRect.height + spacing;
+			left = relLeft + wrapperRect.width / 2 - tooltip.offsetWidth / 2;
+			break;
+		case "left":
+			top = relTop + wrapperRect.height / 2 - tooltip.offsetHeight / 2;
+			left = relLeft - tooltip.offsetWidth - spacing;
+			break;
+		case "right":
+			top = relTop + wrapperRect.height / 2 - tooltip.offsetHeight / 2;
+			left = relLeft + wrapperRect.width + spacing;
+			break;
+	}
+
+	return { top, left, finalPosition };
+}
+
 export function Tooltip({
 	children,
 	text,
 	className,
 	position = "auto",
-}: TooltipProps): JSX.Element {
+	show,
+}: TooltipProps & { show?: boolean }): JSX.Element {
 	const [isMounted, setIsMounted] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 	const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -28,63 +76,30 @@ export function Tooltip({
 	const tooltipRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (isMounted && wrapperRef.current && tooltipRef.current) {
-			const rect = wrapperRef.current.getBoundingClientRect();
-			const tooltip = tooltipRef.current;
-			const spacing = 8;
-			const vw = window.innerWidth;
-			const vh = window.innerHeight;
-
-			let finalPosition: "top" | "bottom" | "left" | "right" =
-				position !== "auto" ? position : "top";
-
-			if (position === "auto") {
-				finalPosition =
-					tryPositions.find((pos) => {
-						switch (pos) {
-							case "top":
-								return rect.top >= tooltip.offsetHeight + spacing;
-							case "bottom":
-								return rect.bottom + tooltip.offsetHeight + spacing <= vh;
-							case "left":
-								return rect.left >= tooltip.offsetWidth + spacing;
-							case "right":
-								return rect.right + tooltip.offsetWidth + spacing <= vw;
-						}
-					}) || "top";
-			}
-
-			setComputedPosition(finalPosition);
-
-			const top = (() => {
-				switch (finalPosition) {
-					case "top":
-						return rect.top - tooltip.offsetHeight - spacing;
-					case "bottom":
-						return rect.bottom + spacing;
-					case "left":
-					case "right":
-						return rect.top + rect.height / 2 - tooltip.offsetHeight / 2;
-				}
-			})();
-
-			const left = (() => {
-				switch (finalPosition) {
-					case "left":
-						return rect.left - tooltip.offsetWidth - spacing;
-					case "right":
-						return rect.right + spacing;
-					case "top":
-					case "bottom":
-						return rect.left + rect.width / 2 - tooltip.offsetWidth / 2;
-				}
-			})();
-
-			setCoords({ top, left });
-		}
+		if (!isMounted || !wrapperRef.current || !tooltipRef.current) return;
+		const { top, left, finalPosition } = computeTooltipPosition(
+			wrapperRef.current,
+			tooltipRef.current,
+			position
+		);
+		setCoords({ top, left });
+		setComputedPosition(finalPosition);
 	}, [isMounted, position]);
 
+	useEffect(() => {
+		if (typeof show === "boolean") {
+			if (show) {
+				setIsMounted(true);
+				requestAnimationFrame(() => setIsVisible(true));
+			} else {
+				setIsVisible(false);
+				setTimeout(() => setIsMounted(false), 200);
+			}
+		}
+	}, [show]);
+
 	const showTooltip = () => {
+		if (typeof show === "boolean") return;
 		setIsMounted(true);
 		requestAnimationFrame(() => {
 			setIsVisible(true);
@@ -92,6 +107,7 @@ export function Tooltip({
 	};
 
 	const hideTooltip = () => {
+		if (typeof show === "boolean") return;
 		setIsVisible(false);
 		setTimeout(() => {
 			setIsMounted(false);

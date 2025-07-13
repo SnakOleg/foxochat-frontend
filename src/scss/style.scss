@@ -10,6 +10,8 @@
 @import "@fontsource/inter/800";
 @import "@fontsource/inter/900";
 
+@import "@fontsource/roboto-mono/300";
+
 @import "components/global";
 @import "components/normalize";
 @import "components/typography";
@@ -22,12 +24,16 @@
 :root {
   --background-color: #0A0A0A;
   --background-chat-color: #141414;
-  --background-chat-list-color: #1e1e1e;
+  --background-chat-list-color: rgb(21 21 21 / 80);
   --background-chat-input: #1a1a1a;
 
   --primary-color: #ececec;
   --branded-color: #2571FF;
   --danger-color: #FF4141;
+
+  --primary-color-rgb: 236, 236, 236;
+  --branded-color-rgb: 37, 113, 255;
+  --danger-color-rgb: 255, 65, 65;
 
   --secondary-color: rgb(14 14 14 / 0.25);
   --secondary-text-color: #707579;
@@ -36,9 +42,9 @@
   --error-dark: #a53f3f;
   --error-input-dark: rgb(165 63 63 / 0.5);
 
-  --lightgray-color: rgb(236 236 236 / 0.75);
-  --gray-color: rgb(236 236 236 / 0.5);
-  --darkgray-color: rgb(236 236 236 / 0.35);
+  --lightgray-color: rgb(var(--primary-color-rgb), .75);
+  --gray-color: rgb(var(--primary-color-rgb), .50);
+  --darkgray-color: rgb(var(--primary-color-rgb), .35);
 
   --font-weight-bold: 500;
 }

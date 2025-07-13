@@ -1,18 +1,17 @@
-import { CachedChat } from "@store/app/metaCache";
-import {
-	APIChannel,
-	APIMember,
-	APIMessage,
-	APIUser,
-	ChannelType,
-} from "foxochat.js";
-import {
+import type {
 	ComponentChild,
 	ComponentChildren,
 	ContainerNode,
-	type JSX,
+	JSX,
 } from "preact";
-import React, { Dispatch } from "react";
+import type React from "react";
+import type { Dispatch } from "react";
+
+type APIChannel = any;
+type APIMember = any;
+type APIMessage = any;
+type ChannelType = any;
+type APIUser = any;
 
 /* === Props Section === */
 
@@ -21,15 +20,18 @@ import React, { Dispatch } from "react";
  */
 
 export interface ChatWindowProps {
-	channel: APIChannel | CachedChat;
+	channel: APIChannel;
 	currentUserId: number;
 	isMobile: boolean;
 	onBack?: () => void;
 }
 
 export interface ChatListProps {
-	chats: (APIChannel | CachedChat)[];
+	chats: APIChannel[];
 	currentUser: APIUser;
+	isCollapsed?: boolean;
+	channels?: APIChannel[];
+	onOpenChat?: () => void;
 }
 
 export interface ChatHeaderProps {
@@ -45,7 +47,7 @@ export interface ChatHeaderProps {
 }
 
 export interface ChatItemProps {
-	chat: APIChannel | CachedChat;
+	chat: APIChannel;
 	isActive: boolean;
 	currentUser?: number | null;
 }
@@ -116,12 +118,7 @@ export interface MessageInputProps {
  */
 
 export interface EmptyStateProps {
-	selectedChat: APIChannel | CachedChat | null;
-}
-
-export interface UserInfoProps {
-	user: APIUser;
-	status?: string;
+	selectedChat: APIChannel | null;
 }
 
 export interface SidebarProps {
@@ -129,6 +126,17 @@ export interface SidebarProps {
 	isMobile?: boolean;
 	setMobileView?: (view: "list" | "chat") => void;
 	setChatTransition?: (transition: string) => void;
+	activeTab?: "chats" | "settings";
+	onTabChange?: (tab: "chats" | "settings") => void;
+	selectedSection?: string;
+	onSelectSection?: (section: string) => void;
+}
+
+export interface SidebarFooterProps {
+	active?: "contacts" | "chats" | "settings";
+	onNav?: (nav: "contacts" | "chats" | "settings") => void;
+	isMobile?: boolean;
+	className?: string;
 }
 
 export interface Props {
@@ -244,13 +252,8 @@ export interface ExtendedChatItemProps extends ChatItemProps {
 	isCollapsed?: boolean;
 }
 
-export interface ExtendedChatListProps extends ChatListProps {
-	isCollapsed?: boolean;
-	channels?: APIChannel[];
-}
-
 export interface ChatAvatarProps {
-	chat: APIChannel | CachedChat;
+	chat: APIChannel;
 }
 
 export interface CreateButtonProps {
@@ -261,10 +264,6 @@ export interface CreateDropdownProps {
 	onSelect: (type: "group" | "channel") => void;
 	onClose: () => void;
 	registerCloseHandler?: (close: () => void) => void;
-}
-
-export interface SearchBarProps {
-	onJoinChannel: (channelId: number | null) => Promise<void>;
 }
 
 export interface ButtonProps {
@@ -288,22 +287,29 @@ export interface TooltipProps {
 	text: string;
 	className?: string;
 	position?: "top" | "bottom" | "left" | "right" | "auto";
+	show?: boolean;
 }
 
 export interface DefaultAvatarProps {
 	createdAt: number;
-	displayName?: string;
-	size?: "small" | "medium" | "large";
+	username?: string;
+	size?: "small" | "medium" | "large" | "fill";
+	square?: boolean;
 }
 
 export interface MemberListProps {
-	channelId: number;
+	members: APIMember[];
+	loading: boolean;
+	error: string | null;
 }
 
 export interface Gateway {
 	on(event: "hello", listener: () => void): void;
+
 	on(event: "closed", listener: (code: number) => void): void;
+
 	on(event: "socketError", listener: (event: Event) => void): void;
+
 	on(
 		event: "dispatch",
 		listener: (message: { t: string; d: unknown }) => void,
@@ -325,4 +331,101 @@ export interface ChatOverviewProps {
 	isOwner: boolean;
 	visible?: boolean;
 	className?: string;
+}
+
+export interface PageTransitionContextType {
+	isTransitioning: boolean;
+	startTransition: (to: string) => void;
+}
+
+export interface PageTransitionProviderProps {
+	children: JSX.Element;
+}
+
+export interface ProfileSettingsProps {
+	currentUser: APIUser;
+}
+
+export interface EditableFieldProps {
+	label: string;
+	value: string;
+	field: "display_name" | "bio" | "username" | "email";
+	loading: boolean;
+	onSave: (field: string, value: string) => Promise<void>;
+	user?: APIUser;
+	asAt?: string;
+}
+
+export interface SettingsProps {
+	currentUser: APIUser;
+	selectedSection?: string;
+	onSelectSection?: (section: string) => void;
+	isMobile?: boolean;
+	showFooter?: boolean;
+	className?: string;
+	onTabChange?: (tab: "chats" | "settings" | "contacts") => void;
+}
+
+export interface MobileSettingsProps {
+	currentUser: APIUser;
+	selectedSection?: string;
+	onSelectSection?: (section: string) => void;
+	onTabChange?: (tab: "chats" | "settings" | "contacts") => void;
+}
+
+export interface SettingsHomeProps {
+	selected: string;
+	onSelect: (key: string) => void;
+	currentUser: APIUser;
+	isMobile?: boolean;
+}
+
+export interface ModalProps {
+	title: string;
+	description: string;
+	onClose: () => void;
+	actionButtons?: JSX.Element[];
+	icon?: string | undefined;
+}
+
+export interface PageProps {
+	children: import("preact").ComponentChildren;
+	center?: boolean;
+}
+
+export interface SpoilerOverlayProps {
+	visible: boolean;
+	onReveal: () => void;
+	originalImage?: HTMLImageElement | null;
+	blurRadius?: number;
+	animationDuration?: number;
+}
+
+export interface PublicProfileCardProps {
+	user: APIUser;
+}
+
+export interface SectionHeaderProps {
+	section: string;
+	title: string;
+	isMobile?: boolean;
+}
+
+export interface PasswordResetModalProps {
+	isOpen: boolean;
+	email: string;
+	onClose: () => void;
+	onSendEmail: (email: string) => Promise<any>;
+	onVerifyCode: (code: string) => Promise<any>;
+	onResetPassword: (password: string) => Promise<any | undefined>;
+	onResendCode: () => Promise<any>;
+}
+
+export interface ColorPickerProps {
+	color: string;
+	onChange: (color: string) => void;
+	label: string;
+	resetText?: string;
+	onReset?: () => void;
+	showReset?: boolean;
 }

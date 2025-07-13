@@ -3,23 +3,32 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background-color: transparent;
-  color: white;
-  border-bottom: 1px solid rgb(96 96 96 / 0.5);
   height: 72px;
-  background: var(--background-chat-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgb(21 21 21 / .80);
+  backdrop-filter: blur(50px);
+  border-bottom: 1px solid rgb(var(--primary-color-rgb), .15);
   gap: 10px;
-  position: relative;
-  z-index: 10000;
+  z-index: 100;
 }
 
 .backButton {
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--branded-color);
   font-size: 24px;
   margin-right: 10px;
   cursor: pointer;
+  
+  img,
+  svg {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+  }
 }
 
 .chatHeaderAvatar {
@@ -71,4 +80,40 @@
   display: flex;
   gap: 2px;
   margin-left: auto;
+  
+  button {
+    color: var(--branded-color);
+    
+    img {
+      color: inherit;
+    }
+  }
+}
+
+.headerActionButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--branded-color);
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 42px;
+    height: 42px;
+    color: inherit;
+  }
 }

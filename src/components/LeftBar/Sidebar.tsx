@@ -1,17 +1,18 @@
+import ChatHeader from "@components/LeftBar/ChatHeader/ChatHeader";
 import ChatList from "@components/LeftBar/ChatList/ChatList";
+import CreateDropdown from "@components/LeftBar/CreateDropdown/CreateDropdown";
+import SearchBar from "@components/LeftBar/SearchBar/SearchBar";
+import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
 import CreateChannelModal from "@components/Modal/CreateChannelModal/CreateChannelModal";
 import * as modalStyles from "@components/Modal/CreateChannelModal/CreateChannelModal.module.scss";
-import { SidebarProps } from "@interfaces/interfaces";
+import type { SidebarProps } from "@interfaces/interfaces";
 import { apiMethods } from "@services/API/apiMethods";
 import appStore from "@store/app";
-import { ChannelType } from "foxochat.js";
+import type { ChannelType } from "foxochat.js";
 import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "preact/hooks";
-import CreateButton from "./CreateButton/CreateButton";
-import CreateDropdown from "./CreateDropdown/CreateDropdown";
-import SearchBar from "./SearchBar/SearchBar";
+import SettingsHome from "@components/Settings/Home/SettingsHome";
 import * as styles from "./Sidebar.module.scss";
-import UserInfo from "./UserInfo/UserInfo";
 
 const MIN_SIDEBAR_WIDTH = 310;
 const DEFAULT_DESKTOP_WIDTH = 420;
@@ -25,6 +26,10 @@ const SidebarComponent = ({
 	isMobile = false,
 	setMobileView = () => undefined,
 	setChatTransition = () => undefined,
+	activeTab = "chats",
+	onTabChange,
+	selectedSection = "profile",
+	onSelectSection,
 }: SidebarProps) => {
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const [showCreateDropdown, setShowCreateDropdown] = useState(false);
@@ -37,7 +42,6 @@ const SidebarComponent = ({
 	const [nameErrorMessage, setNameErrorMessage] = useState<string>(
 		"— Name is already taken",
 	);
-	const [closeDropdown, setCloseDropdown] = useState<(() => void) | null>(null);
 
 	const [width, setWidth] = useState(() => {
 		if (isMobile) {
@@ -115,7 +119,7 @@ const SidebarComponent = ({
 			appStore.addNewChannel(response);
 			await appStore.setCurrentChannel(response.id);
 
-			window.history.replaceState(null, '', `/channels/#${response.id}`);
+			window.history.replaceState(null, "", `/channels/#${response.id}`);
 
 			if (isMobile) {
 				setMobileView("chat");
@@ -205,59 +209,87 @@ const SidebarComponent = ({
 		parseInt(localStorage.getItem("sidebarWidth") ?? "", 10) ===
 		STORAGE_COLLAPSED_VALUE;
 
+	const handleFooterNav = (tab: "chats" | "settings" | "contacts") => {
+		if (tab === "contacts") return;
+		if (onTabChange) onTabChange(tab as "chats" | "settings");
+	};
+
 	return (
 		<div
 			ref={sidebarRef}
 			className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
 			style={isMobile ? { width: "100%" } : { width: `${width}px` }}
 		>
-			{!isCollapsed && (
-				<div className={styles.sidebarHeader}>
-					<div className={styles.headerControls}>
-						<SearchBar
-							onJoinChannel={async (channelId: number | null) => {
-								await appStore.setCurrentChannel(channelId);
-								if (channelId && window.location.pathname === '/channels') {
-									window.history.replaceState(null, '', `/channels/#${channelId}`);
-								}
-								if (isMobile) {
-									setMobileView("chat");
-								}
-							}}
+			<div style={{ position: "relative", height: "100%" }}>
+				<div
+					className={
+						styles.sidebarAnimatedSection +
+						" " + styles.slideRight +
+						(activeTab === "settings" ? " " + styles.visible : "")
+					}
+					style={{ zIndex: activeTab === "settings" ? 11 : 10 }}
+				>
+					<SettingsHome
+						selected={selectedSection}
+						onSelect={onSelectSection || (() => {})}
+						currentUser={currentUser}
+						isMobile={isMobile}
+					/>
+				</div>
+				<div
+					className={
+						styles.sidebarAnimatedSection +
+						" " + styles.slideLeft +
+						(activeTab === "chats" ? " " + styles.visible : "")
+					}
+					style={{ zIndex: activeTab === "chats" ? 11 : 10 }}
+				>
+					<div style={{ position: "relative" }}>
+						<ChatHeader
+							currentUser={currentUser}
+							onAdd={() => setShowCreateDropdown(true)}
+							onEdit={() => {}}
 						/>
-						<div className={styles.createWrapper}>
-							<CreateButton
-								onClick={() => {
-									if (!showCreateDropdown) {
-										setShowCreateDropdown(true);
-									} else {
-										closeDropdown?.();
-									}
+						{showCreateDropdown && (
+							<CreateDropdown
+								onSelect={(type) => {
+									setShowCreateModal(type);
+									setShowCreateDropdown(false);
 								}}
+								onClose={() => setShowCreateDropdown(false)}
 							/>
-							{showCreateDropdown && (
-								<CreateDropdown
-									registerCloseHandler={(fn) => setCloseDropdown(() => fn)}
-									onSelect={(type) => {
-										setShowCreateModal(type);
-									}}
-									onClose={() => setShowCreateDropdown(false)}
-								/>
-							)}
-						</div>
+						)}
+					</div>
+					<SearchBar
+						onJoinChannel={async (channelId: number | null) => {
+							await appStore.setCurrentChannel(channelId);
+							if (channelId && window.location.pathname === "/channels") {
+								window.history.replaceState(
+									null,
+									"",
+									`/channels/#${channelId}`,
+								);
+							}
+							if (isMobile) {
+								setMobileView("chat");
+							}
+						}}
+					/>
+					<div className={styles.sidebarChats}>
+						<ChatList
+							chats={[...channels]}
+							currentUser={currentUser}
+							{...(isMobile ? { onOpenChat: () => setMobileView("chat") } : {})}
+						/>
 					</div>
 				</div>
-			)}
-			<div className={styles.sidebarChats}>
-				<ChatList
-					chats={channels}
-					currentUser={currentUser}
-				/>
 			</div>
-			{!isCollapsed && (
-				<div className={styles.sidebarFooter}>
-					<UserInfo user={currentUser} status="Online" />
-				</div>
+			{!isMobile && (
+				<SidebarFooter
+					active={activeTab}
+					onNav={handleFooterNav}
+					isMobile={false}
+				/>
 			)}
 			{!isMobile && (
 				<div className={styles.resizer} onMouseDown={handleMouseDown} />

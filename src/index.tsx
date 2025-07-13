@@ -15,6 +15,7 @@ import { Home } from "./pages/Home";
 import Landing from "./pages/Landing";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import { PageTransitionProvider } from "./contexts/PageTransitionContext";
 
 import {
 	ErrorBoundaryProps,
@@ -52,10 +53,10 @@ const routes: RouteConfig[] = [
 
 const initializeEmojiSupport = () => {
 	const html = document.documentElement;
-	const classes = isAppleDevice() 
-		? ["is-apple", "native-emoji"] 
-		: ["custom-emoji"];
-	html.classList.add(...classes);
+	
+	if (isAppleDevice()) {
+		html.classList.add('is-apple');
+	}
 };
 
 const registerServiceWorker = async () => {
@@ -216,15 +217,18 @@ export const App = () => {
 
 	useEffect(() => {
 		initializeEmojiSupport();
+		appStore.applyAppearanceSettings();
 		void registerServiceWorker();
 	}, []);
 
 	return (
 		<ErrorBoundary>
 			<LocationProvider>
-				<InitializationCheck>
-					<Routes />
-				</InitializationCheck>
+				<PageTransitionProvider>
+					<InitializationCheck>
+						<Routes />
+					</InitializationCheck>
+				</PageTransitionProvider>
 			</LocationProvider>
 		</ErrorBoundary>
 	);

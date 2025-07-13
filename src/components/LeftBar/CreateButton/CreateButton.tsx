@@ -1,4 +1,4 @@
-import CreateIcon from "@/assets/icons/left-bar/navigation/createButton.svg";
+import CreateIcon from "@/assets/icons/left-bar/navigation/create-button.svg?react";
 import { CreateButtonProps } from "@interfaces/interfaces";
 import { memo } from "preact/compat";
 import * as styles from "./CreateButton.module.scss";
@@ -16,7 +16,7 @@ const CreateButton = ({ onClick }: CreateButtonProps) => {
 			}}
 			aria-label="Create new channel or group"
 		>
-			<img className={styles.plusIcon} alt={"Create chat"} src={CreateIcon} />
+			<CreateIcon className={styles.plusIcon} />
 		</button>
 	);
 };

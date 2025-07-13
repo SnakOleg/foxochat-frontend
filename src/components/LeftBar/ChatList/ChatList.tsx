@@ -1,6 +1,5 @@
-import { ExtendedChatListProps } from "@interfaces/interfaces";
+import type { ChatListProps } from "@interfaces/interfaces";
 import appStore from "@store/app";
-import { renderEmojisToJSX } from "@utils/emoji";
 import { observer } from "mobx-react";
 import { useMemo } from "preact/hooks";
 import ChatItem from "./ChatItem/ChatItem";
@@ -9,7 +8,8 @@ import * as styles from "./ChatList.module.scss";
 const ChatListComponent = ({
 	chats,
 	isCollapsed = false,
-}: ExtendedChatListProps) => {
+	onOpenChat,
+}: ChatListProps) => {
 	const sortedChannels = useMemo(() => {
 		return [...appStore.channels].sort((a, b) => {
 			const aTime = a.last_message?.created_at ?? a.created_at;
@@ -23,8 +23,9 @@ const ChatListComponent = ({
 
 		return (
 			<div className={styles.noChatsContainer}>
-				<div>{renderEmojisToJSX("😔")}</div>
-				<div className={styles.mainText}>Oops! There's nothing to see</div>
+				<div className={styles.mainText}>
+					Can't find the right contact here?
+				</div>
 				<div className={styles.subText}>Start a new chat?</div>
 			</div>
 		);
@@ -41,6 +42,7 @@ const ChatListComponent = ({
 					isActive={chat.id === appStore.currentChannelId}
 					currentUser={appStore.currentUserId}
 					isCollapsed={isCollapsed}
+					onOpenChat={onOpenChat || (() => {})}
 				/>
 			))}
 		</div>

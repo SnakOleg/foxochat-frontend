@@ -4,11 +4,34 @@ import { Logger } from "@utils/logger";
 import { autorun } from "mobx";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import type React from "react";
-import fileIcon from "@/assets/icons/right-bar/chat/file.svg";
-import mediaIcon from "@/assets/icons/right-bar/chat/media.svg";
-import sendIcon from "@/assets/icons/right-bar/chat/paperplane.svg";
-import trashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
+import FileIcon from "@/assets/icons/right-bar/chat/file.svg?react";
+import MediaIcon from "@/assets/icons/right-bar/chat/media.svg?react";
+import SendIcon from "@/assets/icons/right-bar/chat/paperplane.svg?react";
+import SpoilerIcon from "@/assets/icons/right-bar/chat/spoiler.svg?react";
+import TrashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg?react";
 import * as style from "./MessageInput.module.scss";
+
+function SpoilerOverlay() {
+	return (
+		<div
+			style={{
+				position: "absolute",
+				inset: 0,
+				background: "rgba(0,0,0,0.28)",
+				backdropFilter: "blur(6px)",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+				borderRadius: 10,
+				zIndex: 2,
+				pointerEvents: "none",
+				transition: "background 0.2s",
+			}}
+		>
+			<SpoilerIcon style={{ width: 32, height: 32 }} />
+		</div>
+	);
+}
 
 const MAX_FILES = 100;
 const ERROR_DISPLAY_TIME = 7000;
@@ -23,6 +46,8 @@ const MessageInput = ({}: MessageInputProps) => {
 	const [error, setError] = useState<string | null>(null);
 	const [isErrorHiding, setIsErrorHiding] = useState(false);
 	const errorTimeoutRef = useRef<number | null>(null);
+
+	const [fileSpoilers, setFileSpoilers] = useState<boolean[]>([]);
 
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -73,12 +98,18 @@ const MessageInput = ({}: MessageInputProps) => {
 			setIsSending(true);
 			clearError();
 
-			await appStore.sendMessage(message, files);
+			const filesWithFlags = files.map((file, i) => {
+				(file as any).flags = fileSpoilers[i] ? 1 : 0;
+				return file;
+			});
+
+			await appStore.sendMessage(message, filesWithFlags);
 
 			setMessage("");
 			setFiles([]);
 			setFilePreviews(new Map());
 			fileInputRef.current && (fileInputRef.current.value = "");
+			setFileSpoilers([]);
 
 			messageSound.current?.play();
 			textareaRef.current?.focus();
@@ -132,6 +163,8 @@ const MessageInput = ({}: MessageInputProps) => {
 			}
 		}
 
+		setFileSpoilers((prev) => [...prev, ...newFiles.map(() => false)]);
+
 		if (errors.length > 0) {
 			showError(errors.join(", "));
 		}
@@ -150,6 +183,7 @@ const MessageInput = ({}: MessageInputProps) => {
 
 	const handleRemoveFile = (index: number, fileId: string) => {
 		setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+		setFileSpoilers((prev) => prev.filter((_, i) => i !== index));
 		setFilePreviews((prevPreviews) => {
 			const newPreviews = new Map(prevPreviews);
 			const url = newPreviews.get(fileId);
@@ -196,6 +230,7 @@ const MessageInput = ({}: MessageInputProps) => {
 			}
 
 			setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+			setFileSpoilers((prev) => [...prev, ...validFiles.map(() => false)]);
 			setFilePreviews(newPreviews);
 			setTimeout(() => {
 				textareaRef.current?.focus();
@@ -269,6 +304,10 @@ const MessageInput = ({}: MessageInputProps) => {
 		};
 	}, [isSending]);
 
+	const handleToggleFileSpoiler = (idx: number) => {
+		setFileSpoilers((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+	};
+
 	return (
 		<div className={style.messageInputContainer}>
 			{error && (
@@ -277,42 +316,54 @@ const MessageInput = ({}: MessageInputProps) => {
 				</div>
 			)}
 			{files.length > 0 && (
-				<div className={style.filePreviewList}>
-					{files.map((file, index) => {
-						const fileId = generateFileId(file);
-						return (
-							<div key={fileId} className={style.filePreviewItem}>
-								{file.type.startsWith("image/") && filePreviews.has(fileId) ? (
-									<img
-										src={filePreviews.get(fileId)}
-										alt={file.name}
-										className={style.filePreviewImage}
-									/>
-								) : (
-									<img
-										src={fileIcon}
-										alt="File Icon"
-										className={style.filePreviewIcon}
-									/>
-								)}
-								<div className={style.fileNameContainer}>
-									<span className={style.fileName}>{file.name}</span>
-									<button
-										onClick={() => handleRemoveFile(index, fileId)}
-										className={style.removeFileButton}
-										disabled={isSending || appStore.isSendingMessage}
-									>
-										<img
-											src={trashIcon}
-											alt="Remove"
-											className={style.trashIcon}
-										/>
-									</button>
+				<>
+					<div className={style.filePreviewList}>
+						{files.map((file, index) => {
+							const fileId = generateFileId(file);
+							const isSpoiler = fileSpoilers[index];
+							return (
+								<div key={fileId} className={style.filePreviewItem}>
+									{file.type.startsWith("image/") &&
+									filePreviews.has(fileId) ? (
+										<>
+											<img
+												src={filePreviews.get(fileId)}
+												alt={file.name}
+												className={style.filePreviewImage}
+												style={{
+													filter: isSpoiler ? "blur(12px)" : undefined,
+													transition: "filter 0.3s ease-out",
+												}}
+											/>
+											{isSpoiler && <SpoilerOverlay />}
+										</>
+									) : (
+										<FileIcon className={style.filePreviewIcon} />
+									)}
+									<div className={style.fileNameContainer}>
+										<span className={style.fileName}>{file.name}</span>
+										<button
+											onClick={() => handleToggleFileSpoiler(index)}
+											className={`${style.spoilerToggleButton} ${isSpoiler ? "active" : ""}`}
+											type="button"
+											title={isSpoiler ? "Remove spoiler" : "Mark as spoiler"}
+										>
+											<SpoilerIcon style={{ width: 16, height: 16 }} />
+										</button>
+										<button
+											onClick={() => handleRemoveFile(index, fileId)}
+											className={style.removeFileButton}
+											disabled={isSending || appStore.isSendingMessage}
+										>
+											<TrashIcon className={style.trashIcon} />
+										</button>
+									</div>
 								</div>
-							</div>
-						);
-					})}
-				</div>
+							);
+						})}
+					</div>
+					<div className={style.mediaDivider} />
+				</>
 			)}
 			<div className={style.messageInputBackground} ref={containerRef}>
 				<button
@@ -320,7 +371,7 @@ const MessageInput = ({}: MessageInputProps) => {
 					className={style.iconButton}
 					disabled={isSending || appStore.isSendingMessage}
 				>
-					<img src={mediaIcon} alt="Media" className={style.icon} />
+					<MediaIcon className={style.icon} />
 				</button>
 				<textarea
 					ref={textareaRef}
@@ -354,17 +405,7 @@ const MessageInput = ({}: MessageInputProps) => {
 						(!message.trim() && !files.length)
 					}
 				>
-					<img
-						src={sendIcon}
-						alt="Send"
-						className={
-							isSending ||
-							appStore.isSendingMessage ||
-							(!message.trim() && !files.length)
-								? style.iconDisabled
-								: style.icon
-						}
-					/>
+					<SendIcon className={style.icon} />
 				</button>
 			</div>
 		</div>

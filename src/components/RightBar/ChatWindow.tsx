@@ -27,7 +27,7 @@ const ChatWindowComponent = ({
 	const anchorOffset = useRef<number>(0);
 	const scrollTimeout = useRef<number | null>(null);
 	const isMounted = useRef(true);
-	const [showOverview, setShowOverview] = useState(true);
+	const [showOverview, setShowOverview] = useState(false);
 
 	const apiChannel = channel as unknown as APIChannel;
 	const isOwner = apiChannel.owner?.id === appStore.currentUserId;
@@ -301,46 +301,60 @@ const ChatWindowComponent = ({
 		}
 	};
 
+	const participantsCount = apiChannel.member_count ?? 0;
+	const onlineCount = appStore.users.filter((u) => {
+		if (Array.isArray(u.channels) && !u.channels.includes(apiChannel.id)) return false;
+		const status = appStore.userStatuses.get(u.id) ?? u.status;
+		return status === 1 || String(status).toLowerCase() === "online";
+	}).length;
+
 	return (
-		<div
-			className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}
-		>
+		<div className={`${styles.chatWindowContainer} ${isDragOver ? styles.dragOver : ""}`}>
 			<div className={styles.chatWindow}>
-				<ChatHeader
-					chat={apiChannel}
-					avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
-					username={channel.name}
-					displayName={channel.display_name}
-					channelId={channel.id}
-					isMobile={isMobile}
-					onBack={isMobile ? onBack : undefined}
-					showOverview={showOverview}
-					setShowOverview={setShowOverview}
-				/>
-				<MessageList
-					messages={messages}
-					isLoading={isLoading}
-					isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
-					currentUserId={appStore.currentUserId ?? -1}
-					messageListRef={listRef}
-					onScroll={handleScroll}
-					channel={apiChannel}
-				/>
-				{showScrollButton && (
-					<button
-						className={`${styles.scrollButton} ${styles.visible}`}
-						onClick={handleScrollToBottom}
-						title="New messages"
-						style={{ right: showOverview ? "340px" : "20px" }}
-					>
-						↓ {appStore.unreadCount.get(channel.id) || ""}
-					</button>
-				)}
+				<div className={styles.messageListWrapper}>
+					<ChatHeader
+						chat={apiChannel}
+						avatar={`${config.cdnBaseUrl}${channel.icon?.uuid}`}
+						username={channel.name}
+						displayName={channel.display_name}
+						channelId={channel.id}
+						isMobile={isMobile}
+						onBack={isMobile ? onBack : undefined}
+						showOverview={showOverview}
+						setShowOverview={setShowOverview}
+						participantsCount={participantsCount}
+						onlineCount={onlineCount}
+					/>
+					<MessageList
+						messages={messages}
+						isLoading={isLoading}
+						isInitialLoading={appStore.isInitialLoad.get(channel.id) || false}
+						currentUserId={appStore.currentUserId ?? -1}
+						messageListRef={listRef}
+						onScroll={handleScroll}
+						channel={apiChannel}
+					/>
+				</div>
 				<MessageInput
 					onSendMessage={(c, f) => appStore.sendMessage(c, f)}
 					isSending={appStore.isSendingMessage}
 				/>
 			</div>
+			<ChatOverview
+				channel={apiChannel}
+				isOwner={isOwner}
+				visible={showOverview}
+			/>
+			{showScrollButton && (
+				<button
+					className={`${styles.scrollButton} ${styles.visible}`}
+					onClick={handleScrollToBottom}
+					title="New messages"
+					style={{ right: showOverview ? "340px" : "20px" }}
+				>
+					↓ {appStore.unreadCount.get(channel.id) || ""}
+				</button>
+			)}
 			{isDragOver && (
 				<div className={styles.dragOverlay}>
 					<div className={styles.dragBox}>
@@ -357,11 +371,6 @@ const ChatWindowComponent = ({
 					</div>
 				</div>
 			)}
-			<ChatOverview
-				channel={apiChannel}
-				isOwner={isOwner}
-				visible={showOverview}
-			/>
 		</div>
 	);
 };

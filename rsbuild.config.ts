@@ -2,11 +2,64 @@ import { defineConfig } from "@rsbuild/core";
 import { pluginPreact } from "@rsbuild/plugin-preact";
 import { pluginSass } from "@rsbuild/plugin-sass";
 import { pluginTypedCSSModules } from "@rsbuild/plugin-typed-css-modules";
+import { pluginSvgr } from '@rsbuild/plugin-svgr';
+import { readFileSync, writeFileSync } from "fs";
+
+function getGitRevision() {
+    try {
+        const rev = readFileSync('.git/HEAD').toString().trim();
+        if (rev.indexOf(':') === -1) {
+            return rev.substring(0, 7);
+        }
+        const fullHash = readFileSync('.git/' + rev.substring(5)).toString().trim();
+        return fullHash.substring(0, 7);
+    } catch {
+        return '?';
+    }
+}
+
+function getGitBranch() {
+    try {
+        const rev = readFileSync('.git/HEAD').toString().trim();
+        if (rev.indexOf(':') === -1) {
+            return 'DETACHED';
+        }
+        return rev.split('/').pop();
+    } catch {
+        return '?';
+    }
+}
+
+function getGitCommitCount() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('git rev-list --count HEAD').toString().trim();
+    } catch {
+        return '?';
+    }
+}
+
+function getVersion() {
+    return JSON.parse(readFileSync('package.json').toString()).version;
+}
+
+const version = getVersion();
+const gitRevision = getGitRevision();
+const gitBranch = getGitBranch();
+const gitCommitCount = getGitCommitCount();
+const versionString = `${version} (${gitCommitCount}, ${gitRevision})`;
+
+try {
+    writeFileSync('./public/version', versionString);
+    console.log('Generated version:', versionString);
+} catch (error) {
+    console.error('Failed to write version file:', error);
+}
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
 export default defineConfig({
-	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass()],
+	plugins: [pluginPreact(), pluginTypedCSSModules(), pluginSass(), pluginSvgr()],
 	html: {
 		template: "./index.html",
 	},
@@ -29,6 +82,10 @@ export default defineConfig({
 					process.env.CDN_BASE_URL || "https://media.foxochat.app/attachments/",
 				apiUrl: process.env.API_URL || "https://api.foxochat.app/",
 			}),
+      __APP_VERSION__: JSON.stringify(version),
+      __GIT_REVISION__: JSON.stringify(gitRevision),
+      __GIT_BRANCH__: JSON.stringify(gitBranch),
+      __GIT_COMMIT_COUNT__: JSON.stringify(gitCommitCount),
 		},
 		preEntry: isDevelopment ? ["preact/debug"] : [],
 	},

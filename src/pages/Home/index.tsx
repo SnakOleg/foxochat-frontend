@@ -6,12 +6,12 @@ import "./style.scss";
 import Sidebar from "@components/LeftBar/Sidebar";
 import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
+import Settings from "@components/Settings/Settings";
+import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
 
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
-import { APIChannel } from "foxochat.js";
-import { CachedChat } from "@store/app/metaCache";
-import { useRoute } from "preact-iso";
+import { Logger } from "@/utils/logger";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -30,8 +30,15 @@ function useAuthRedirect(redirectTo = "/auth/login") {
 
 const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+	const [activeTab, setActiveTab] = useState<"chats" | "settings">("chats");
+	const [selectedSection, setSelectedSection] = useState("");
 	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
-	const [chatTransition, setChatTransition] = useState("");
+
+	useEffect(() => {
+		if (!isMobile && activeTab === "settings" && selectedSection === "") {
+			setSelectedSection("profile");
+		}
+	}, [activeTab, isMobile, selectedSection]);
 
 	const authorized = useAuthRedirect();
 
@@ -45,52 +52,58 @@ const HomeComponent = () => {
 
 	useEffect(() => {
 		const channelId = getChannelIdFromHash();
-		
+
 		if (channelId) {
-			const channelExists = appStore.channels.some(
-				(c) => c.id === channelId,
-			);
+			const channelExists = appStore.channels.some((c) => c.id === channelId);
 
 			if (channelExists) {
 				if (appStore.currentChannelId !== channelId) {
-					appStore.setCurrentChannel(channelId);
+					void appStore.setCurrentChannel(channelId);
 				}
 			} else {
 				const currentChannelId = appStore.currentChannelId;
 				if (currentChannelId) {
-					window.history.replaceState(null, '', `/channels/#${currentChannelId}`);
+					window.history.replaceState(
+						null,
+						"",
+						`/channels/#${currentChannelId}`,
+					);
 				} else {
 					window.location.href = "/channels";
 				}
 			}
 		} else {
-			appStore.setCurrentChannel(null);
+			void appStore.setCurrentChannel(null);
 		}
 	}, [appStore.channels.length]);
 
 	useEffect(() => {
 		const handleHashChange = () => {
 			const channelId = getChannelIdFromHash();
-			if (channelId && appStore.channels.some(c => c.id === channelId)) {
-				appStore.setCurrentChannel(channelId);
+			if (channelId && appStore.channels.some((c) => c.id === channelId)) {
+				void appStore.setCurrentChannel(channelId);
 			} else if (channelId) {
 				const currentChannelId = appStore.currentChannelId;
 				if (currentChannelId) {
-					window.history.replaceState(null, '', `/channels/#${currentChannelId}`);
+					window.history.replaceState(
+						null,
+						"",
+						`/channels/#${currentChannelId}`,
+					);
 				} else {
 					window.location.href = "/channels";
 				}
 			} else {
-				appStore.setCurrentChannel(null);
+				void appStore.setCurrentChannel(null);
 			}
 		};
 
-		window.addEventListener('hashchange', handleHashChange);
-		return () => window.removeEventListener('hashchange', handleHashChange);
+		window.addEventListener("hashchange", handleHashChange);
+		return () => window.removeEventListener("hashchange", handleHashChange);
 	}, [appStore.channels]);
 
 	const { channels, currentUserId, currentChannelId } = appStore;
-	const currentUser = appStore.users.find(u => u.id === currentUserId);
+	const currentUser = appStore.users.find((u) => u.id === currentUserId);
 	if (!currentUser) return null;
 
 	const selectedChat = useMemo(
@@ -119,7 +132,6 @@ const HomeComponent = () => {
 		debounce(() => {
 			const newIsMobile = window.innerWidth < 768;
 			setIsMobile(newIsMobile);
-			if (newIsMobile) setMobileView("list");
 		}, 100),
 		[],
 	);
@@ -132,52 +144,74 @@ const HomeComponent = () => {
 		};
 	}, [handleResize]);
 
-	const handleSelectChat = useCallback(
-		async (chat: APIChannel | CachedChat) => {
-			if (chat.id === currentChannelId) return;
-			
-			if (isMobile) {
-				setMobileView("chat");
-				setChatTransition("slide-in");
-			}
-			history.pushState(null, '', `/channels/#${chat.id}`);
-			await appStore.setCurrentChannel(chat.id);
-		},
-		[isMobile, currentChannelId],
-	);
-
-	const handleBackToList = useCallback(() => {
-		setChatTransition("slide-out");
-		requestAnimationFrame(() => {
-			setTimeout(async () => {
-				await appStore.setCurrentChannel(null);
-				setMobileView("list");
-				setChatTransition("");
-			}, 300);
-		});
-	}, []);
+	Logger.info(`isMobile: ${isMobile}`);
 
 	if (isMobile) {
+		const isSettingsActive = activeTab === "settings";
 		return (
 			<div className="home-container mobile">
-				<div className="sidebar-wrapper visible">
+				<div
+					className={
+						`sidebar-wrapper sidebarAnimatedSection slideLeft` +
+						(activeTab === "chats" && mobileView === "list" ? " visible" : "")
+					}
+					style={{ zIndex: activeTab === "chats" && mobileView === "list" ? 11 : 10 }}
+				>
 					<Sidebar
 						currentUser={currentUser}
 						isMobile
+						setChatTransition={() => {}}
 						setMobileView={setMobileView}
-						setChatTransition={setChatTransition}
+						activeTab={activeTab}
+						onTabChange={setActiveTab}
+						selectedSection={selectedSection}
+						onSelectSection={setSelectedSection}
 					/>
 				</div>
-				{mobileView === "chat" && selectedChat ? (
-					<div className={`chat-container ${chatTransition} visible`}>
+				<div
+					className={
+						`settings sidebarAnimatedSection slideRight` +
+						(activeTab === "settings" ? " visible" : "")
+					}
+					style={{ zIndex: activeTab === "settings" ? 11 : 10 }}
+				>
+					<Settings
+						currentUser={currentUser}
+						selectedSection={selectedSection}
+						onSelectSection={setSelectedSection}
+						isMobile={isMobile}
+						onTabChange={(tab) => setActiveTab(tab as "chats" | "settings")}
+					/>
+				</div>
+				<div
+					className={
+						`chat-container sidebarAnimatedSection slideRight` +
+						(mobileView === "chat" ? " visible" : "")
+					}
+					style={{ zIndex: mobileView === "chat" ? 11 : 10 }}
+				>
+					{selectedChat ? (
 						<ChatWindow
 							channel={selectedChat}
 							currentUserId={currentUserId ?? -1}
-							onBack={handleBackToList}
-							isMobile
+							isMobile={true}
+							onBack={() => {
+								appStore.setCurrentChannel(null);
+								setMobileView("list");
+							}}
 						/>
-					</div>
-				) : null}
+					) : (
+						<EmptyState selectedChat={null} />
+					)}
+				</div>
+				{(!isSettingsActive || selectedSection === "") && mobileView !== "chat" && (
+					<SidebarFooter
+						active={activeTab}
+						onNav={(tab) => setActiveTab(tab as "chats" | "settings")}
+						isMobile={true}
+						className={isSettingsActive && selectedSection !== "" ? "footerHidden" : ""}
+					/>
+				)}
 			</div>
 		);
 	}
@@ -187,18 +221,27 @@ const HomeComponent = () => {
 			<Sidebar
 				currentUser={currentUser}
 				isMobile={false}
+				activeTab={activeTab}
+				onTabChange={setActiveTab}
+				selectedSection={selectedSection}
+				onSelectSection={setSelectedSection}
 			/>
 			<div className="chat-container">
-				{selectedChat ? (
+				{activeTab === "settings" ? (
+					<Settings 
+						currentUser={currentUser} 
+						selectedSection={selectedSection}
+						onSelectSection={setSelectedSection}
+						isMobile={isMobile}
+					/>
+				) : selectedChat ? (
 					<ChatWindow
 						channel={selectedChat}
 						currentUserId={currentUserId ?? -1}
 						isMobile={false}
 					/>
 				) : (
-					<EmptyState
-						selectedChat={null}
-					/>
+					<EmptyState selectedChat={null} />
 				)}
 			</div>
 		</div>
