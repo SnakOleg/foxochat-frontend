@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@foxochat/api-types': latest
+  '@foxochat/api': latest
+  '@foxochat/gateway-types': latest
+
 importers:
 
   .:
@@ -50,6 +55,9 @@ importers:
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
+      react-color-palette:
+        specifier: ^7.3.0
+        version: 7.3.0(react@19.1.0)
       sanitize-html:
         specifier: ^2.17.0
         version: 2.17.0
@@ -710,12 +718,15 @@ packages:
 
   '@foxochat/api-types@0.1.21':
     resolution: {integrity: sha512-wtCqzDxpkp1PImkY54RYXhz98t8pl1VmnRAW61fyrsuElBMEsXmJwyqp1mb/YWEyNSOUOYFV2cnTjvp/hkQBFg==}
+    deprecated: rollback
 
   '@foxochat/api@0.1.18':
     resolution: {integrity: sha512-ScK0AaQV6qUmAYFwERI9CntsW7xq/0AD5D4/Im6R2kMK/UqruqpdVy4vv5YlJVmocmdHgUwuYMLni6T/bBc3Jw==}
+    deprecated: rollback
 
   '@foxochat/gateway-types@0.1.9':
     resolution: {integrity: sha512-WOc+ulLXjhzTKajUKFw2EmNhRhApf9LxA4IGhQW3kKCdxe3Itk6mxB0zp/3nSg4gQd8KCxS1H98IF1sxb0mYaQ==}
+    deprecated: rollback
 
   '@foxochat/gateway@0.1.11':
     resolution: {integrity: sha512-uLWZPcqKE/ZWlpb1Kb5IX/oZpUCfCNWoAEHFO1LySasAJFx839vUX7F8LvcSpTvg6eu6GUSoXjZX2ctsjm7MMw==}
@@ -2126,6 +2137,12 @@ packages:
 
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
+
+  react-color-palette@7.3.0:
+    resolution: {integrity: sha512-GCgz+XEcbyFkq5wVvrPiXp8mUnOI3oObtmOtsZBCpDXgzHcDCJdssW8lTtVXbUqodo6pOw6pwYQRlXpi/ekkzQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16.8'
 
   react-property@2.0.2:
     resolution: {integrity: sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug==}
@@ -4819,6 +4836,10 @@ snapshots:
   randombytes@2.1.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  react-color-palette@7.3.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
 
   react-property@2.0.2: {}
 
