@@ -1,0 +1,211 @@
+.mobileSettingsContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.settingsView {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background-chat-list-color);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+  
+  &.menuView {
+    transform: translateX(0);
+    pointer-events: auto;
+    
+    &.active {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    
+    &:not(.active) {
+      transform: translateX(-100%);
+      pointer-events: none;
+    }
+    
+    &.slideInFromLeft {
+      animation: slideInFromLeft 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  }
+  
+  &.sectionView {
+    transform: translateX(100%);
+    pointer-events: none;
+    
+    &.active {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    
+    &:not(.active) {
+      transform: translateX(100%);
+      pointer-events: none;
+    }
+    
+    &.slideInFromRight {
+      animation: slideInFromRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  }
+}
+
+.settingsView.sectionView:not(.active) {
+  display: none;
+}
+.settingsView.menuView:not(.active) {
+  display: none;
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  padding: 22px 16px 8px 16px;
+  border-bottom: 1px solid rgb(var(--primary-color-rgb), 0.15);
+  background: var(--background-chat-list-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    color: var(--branded-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    margin-right: 12px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    
+    &:hover {
+      background-color: rgb(var(--branded-color-rgb), 0.1);
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      background-color: rgb(var(--branded-color-rgb), 0.2);
+      transform: scale(0.95);
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s ease;
+    }
+    
+    &:active svg {
+      transform: translateX(-2px);
+    }
+  }
+  
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+    flex: 1;
+  }
+}
+
+.sectionContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  padding-bottom: 80px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .sectionHeader {
+    padding: 16px 12px 8px 12px;
+    
+    .backButton {
+      width: 36px;
+      height: 36px;
+      margin-right: 10px;
+      
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+    
+    .sectionTitle {
+      font-size: 15px;
+    }
+  }
+  
+  .sectionContent {
+    padding: 12px;
+    padding-bottom: 70px;
+    
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      padding-bottom: calc(70px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+.settingsView {
+  &.loading {
+    opacity: 0.8;
+    pointer-events: none;
+  }
+} 
+
+.versionInfoBottom {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.footerContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateX(0);
+  
+  &.footerHidden {
+    transform: translateX(100%);
+  }
+} 
