@@ -16,7 +16,9 @@ function ProfileEditableField({
 	field,
 	loading,
 	onSave,
-}: EditableFieldProps) {
+	dataSettingsLabel,
+	id
+}: EditableFieldProps & { dataSettingsLabel?: string, id?: string }) {
 	const [edit, setEdit] = useState(false);
 	const [fieldValue, setFieldValue] = useState(value ?? "");
 	const [localLoading, setLocalLoading] = useState(false);
@@ -84,6 +86,8 @@ function ProfileEditableField({
 			className={styles.profileInfoRow}
 			style={{ userSelect: edit ? "auto" : "none" }}
 			onClick={() => !edit && setEdit(true)}
+			data-settings-label={dataSettingsLabel}
+			id={id}
 		>
 			<span className={styles.profileInfoLabel}>{label}</span>
 			<span className={styles.profileInfoValue}>
@@ -132,7 +136,7 @@ export default function ProfileSettings({ currentUser }: ProfileSettingsProps) {
 				body.email = value;
 			}
 			await apiMethods.editUser(body);
-			setUser((prev) => ({ ...prev, ...body }));
+			setUser((prev: typeof user) => ({ ...prev, ...body }));
 			setSuccess("Saved!");
 		} catch (e: any) {
 			setError(e.message || "Failed to save");
@@ -199,6 +203,8 @@ export default function ProfileSettings({ currentUser }: ProfileSettingsProps) {
 						field="display_name"
 						loading={loading}
 						onSave={handleSave}
+						dataSettingsLabel="Display name"
+						id="profile-display-name"
 					/>
 					<div className={styles.profileInfoDivider} />
 					<ProfileEditableField
@@ -207,6 +213,8 @@ export default function ProfileSettings({ currentUser }: ProfileSettingsProps) {
 						field="bio"
 						loading={loading}
 						onSave={handleSave}
+						dataSettingsLabel="Bio"
+						id="profile-bio"
 					/>
 				</div>
 			</div>
@@ -219,6 +227,8 @@ export default function ProfileSettings({ currentUser }: ProfileSettingsProps) {
 					field="username"
 					loading={loading}
 					onSave={handleSave}
+					dataSettingsLabel="Username"
+					id="profile-username"
 				/>
 				<div className={styles.profileInfoDivider} />
 				<ProfileEditableField
@@ -227,18 +237,25 @@ export default function ProfileSettings({ currentUser }: ProfileSettingsProps) {
 					field="email"
 					loading={loading}
 					onSave={handleSave}
+					dataSettingsLabel="Email"
+					id="profile-email"
 				/>
 			</div>
 
 			<div className={styles.profileSectionTitle}>Actions</div>
 			<div className={styles.profileActionsBlock}>
-				<button className={styles.profileActionLogout} onClick={handleLogout}>
+				<button className={styles.profileActionLogout} onClick={handleLogout}
+					data-settings-label="Log out"
+					id="profile-logout"
+				>
 					Log out
 				</button>
 				<div className={styles.profileInfoDivider} />
 				<button
 					className={styles.profileActionDelete}
 					onClick={handleDeleteAccount}
+					data-settings-label="Delete account"
+					id="profile-delete"
 				>
 					Delete account
 				</button>

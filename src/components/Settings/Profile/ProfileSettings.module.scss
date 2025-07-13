@@ -31,9 +31,8 @@
 }
 
 .profileInfoLabel {
-  min-width: 120px;
-  color: #b3b3b3;
-  font-size: 17px;
+  color: var(--primary-color);
+  font-size: 16px;
 }
 
 .profileInfoValue {
@@ -149,7 +148,7 @@
   gap: 8px;
   font-size: 16px;
   font-weight: 500;
-  color: #ececec;
+  color: var(--primary-color);
 }
 
 .profileActions {
@@ -201,7 +200,7 @@
 }
 
 .profileDeleteBtn:hover {
-  background: #ff2222;
+  background: rgb(var(--danger-color-rgb), .10);
 }
 
 .profileDeleteError {
