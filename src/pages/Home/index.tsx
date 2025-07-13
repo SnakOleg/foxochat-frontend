@@ -7,9 +7,11 @@ import Sidebar from "@components/LeftBar/Sidebar";
 import ChatWindow from "@components/RightBar/ChatWindow";
 import EmptyState from "@components/RightBar/EmptyState/EmptyState";
 import Settings from "@components/Settings/Settings";
+import SidebarFooter from "@components/LeftBar/SidebarFooter/SidebarFooter";
 
 import appStore from "@store/app";
 import { useAuthStore } from "@store/authenticationStore";
+import { Logger } from "@/utils/logger";
 
 function useAuthRedirect(redirectTo = "/auth/login") {
 	const authStore = useAuthStore();
@@ -28,10 +30,15 @@ function useAuthRedirect(redirectTo = "/auth/login") {
 
 const HomeComponent = () => {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
-	const [chatTransition, setChatTransition] = useState("");
 	const [activeTab, setActiveTab] = useState<"chats" | "settings">("chats");
-	const [selectedSection, setSelectedSection] = useState("profile");
+	const [selectedSection, setSelectedSection] = useState("");
+	const [mobileView, setMobileView] = useState<"list" | "chat">("list");
+
+	useEffect(() => {
+		if (!isMobile && activeTab === "settings" && selectedSection === "") {
+			setSelectedSection("profile");
+		}
+	}, [activeTab, isMobile, selectedSection]);
 
 	const authorized = useAuthRedirect();
 
@@ -125,7 +132,6 @@ const HomeComponent = () => {
 		debounce(() => {
 			const newIsMobile = window.innerWidth < 768;
 			setIsMobile(newIsMobile);
-			if (newIsMobile) setMobileView("list");
 		}, 100),
 		[],
 	);
@@ -138,40 +144,74 @@ const HomeComponent = () => {
 		};
 	}, [handleResize]);
 
-	const handleBackToList = useCallback(() => {
-		setChatTransition("slide-out");
-		requestAnimationFrame(() => {
-			setTimeout(async () => {
-				await appStore.setCurrentChannel(null);
-				setMobileView("list");
-				setChatTransition("");
-			}, 300);
-		});
-	}, []);
+	Logger.info(`isMobile: ${isMobile}`);
 
 	if (isMobile) {
+		const isSettingsActive = activeTab === "settings";
 		return (
 			<div className="home-container mobile">
-				<div className="sidebar-wrapper visible">
+				<div
+					className={
+						`sidebar-wrapper sidebarAnimatedSection slideLeft` +
+						(activeTab === "chats" && mobileView === "list" ? " visible" : "")
+					}
+					style={{ zIndex: activeTab === "chats" && mobileView === "list" ? 11 : 10 }}
+				>
 					<Sidebar
 						currentUser={currentUser}
 						isMobile
+						setChatTransition={() => {}}
 						setMobileView={setMobileView}
-						setChatTransition={setChatTransition}
 						activeTab={activeTab}
 						onTabChange={setActiveTab}
+						selectedSection={selectedSection}
+						onSelectSection={setSelectedSection}
 					/>
 				</div>
-				{mobileView === "chat" && selectedChat ? (
-					<div className={`chat-container ${chatTransition} visible`}>
+				<div
+					className={
+						`settings sidebarAnimatedSection slideRight` +
+						(activeTab === "settings" ? " visible" : "")
+					}
+					style={{ zIndex: activeTab === "settings" ? 11 : 10 }}
+				>
+					<Settings
+						currentUser={currentUser}
+						selectedSection={selectedSection}
+						onSelectSection={setSelectedSection}
+						isMobile={isMobile}
+						onTabChange={(tab) => setActiveTab(tab as "chats" | "settings")}
+					/>
+				</div>
+				<div
+					className={
+						`chat-container sidebarAnimatedSection slideRight` +
+						(mobileView === "chat" ? " visible" : "")
+					}
+					style={{ zIndex: mobileView === "chat" ? 11 : 10 }}
+				>
+					{selectedChat ? (
 						<ChatWindow
 							channel={selectedChat}
 							currentUserId={currentUserId ?? -1}
-							onBack={handleBackToList}
-							isMobile
+							isMobile={true}
+							onBack={() => {
+								appStore.setCurrentChannel(null);
+								setMobileView("list");
+							}}
 						/>
-					</div>
-				) : null}
+					) : (
+						<EmptyState selectedChat={null} />
+					)}
+				</div>
+				{(!isSettingsActive || selectedSection === "") && mobileView !== "chat" && (
+					<SidebarFooter
+						active={activeTab}
+						onNav={(tab) => setActiveTab(tab as "chats" | "settings")}
+						isMobile={true}
+						className={isSettingsActive && selectedSection !== "" ? "footerHidden" : ""}
+					/>
+				)}
 			</div>
 		);
 	}
@@ -192,6 +232,7 @@ const HomeComponent = () => {
 						currentUser={currentUser} 
 						selectedSection={selectedSection}
 						onSelectSection={setSelectedSection}
+						isMobile={isMobile}
 					/>
 				) : selectedChat ? (
 					<ChatWindow
