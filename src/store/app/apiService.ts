@@ -1,11 +1,9 @@
 import { apiMethods, getAuthToken } from "@services/API/apiMethods";
 import { Logger } from "@utils/logger";
 import type { APIChannel } from "foxochat.js";
-import { APIMessage } from "foxochat.js";
 import { observable, runInAction } from "mobx";
-import { AppStore } from "./appStore";
-import { CachedChat } from "./metaCache";
-import { createChannelFromAPI, transformToMessage } from "./transforms";
+import type { AppStore } from "./appStore";
+import { createChannelFromAPI } from "./transforms";
 
 interface AuthError {
 	response?: { status?: number };
@@ -32,7 +30,7 @@ function handleAuthError(this: AppStore, error: unknown) {
 	}
 }
 
-function mapToCachedChat(channel: APIChannel): CachedChat {
+function mapToCachedChat(channel: APIChannel) {
 	const transformed = createChannelFromAPI(channel);
 	if (!transformed) {
 		throw new Error("Failed to transform channel");
@@ -62,9 +60,7 @@ export async function fetchCurrentUser(this: AppStore): Promise<void> {
 	}
 }
 
-export async function fetchChannelsFromAPI(
-	this: AppStore,
-): Promise<CachedChat[]> {
+export async function fetchChannelsFromAPI(this: AppStore): Promise<any[]> {
 	if (
 		!getAuthToken() ||
 		this.channels.length > 0 ||
@@ -83,7 +79,7 @@ export async function fetchChannelsFromAPI(
 
 		const transformedChannels = apiChannels
 			.map((channel) => observable.object(createChannelFromAPI(channel)))
-			.filter(Boolean) as CachedChat[];
+			.filter(Boolean) as any[];
 
 		const cachedChannels = apiChannels.map(mapToCachedChat);
 
@@ -124,7 +120,11 @@ export async function sendMessage(
 		let attachmentIds: number[] = [];
 		if (files.length > 0) {
 			const flags = files.map((file) => (file as any).flags ?? 0);
-			const atts = await apiMethods.createMessageAttachments(channelId, files, flags);
+			const atts = await apiMethods.createMessageAttachments(
+				channelId,
+				files,
+				flags,
+			);
 			await Promise.all(
 				atts.map((att, idx) => {
 					const file = files[idx];
@@ -135,11 +135,7 @@ export async function sendMessage(
 			attachmentIds = atts.map((att) => att.id);
 		}
 
-		await apiMethods.createMessage(
-			channelId,
-			content,
-			attachmentIds,
-		);
+		await apiMethods.createMessage(channelId, content, attachmentIds);
 
 		runInAction(() => {
 			this.isSendingMessage = false;

@@ -1,4 +1,5 @@
 import { apiMethods } from "@services/API/apiMethods";
+import { isAppleDevice } from "@utils/emoji";
 import { Logger } from "@utils/logger";
 import type {
 	APIChannel,
@@ -16,13 +17,12 @@ import {
 } from "mobx";
 import type { WebSocketClient } from "@/gateway/webSocketClient";
 import * as apiService from "./apiService";
-import type { CachedChat, CachedUser } from "./metaCache";
 import { createChannelFromAPI, transformToMessage } from "./transforms";
 import * as wsService from "./websocketService";
 
 configure({ enforceActions: "observed" });
 
-export function mapApiChannelToCached(chat: APIChannel): CachedChat {
+export function mapApiChannelToCached(chat: APIChannel): APIChannel {
 	const transformed = createChannelFromAPI(chat);
 	if (!transformed) {
 		throw new Error("Failed to transform channel");
@@ -30,10 +30,10 @@ export function mapApiChannelToCached(chat: APIChannel): CachedChat {
 	return transformed;
 }
 
-function mapApiUserToCached(user: APIUser): CachedUser {
+function mapApiUserToCached(user: APIUser): APIUser {
 	return {
 		...user,
-	} as CachedUser;
+	} as APIUser;
 }
 
 export class AppStore {
@@ -46,11 +46,9 @@ export class AppStore {
 		boolean
 	>();
 	@observable accessor isInitialLoad = observable.map<number, boolean>();
-	@observable accessor channels: IObservableArray<CachedChat> =
+	@observable accessor channels: IObservableArray<APIChannel> =
 		observable.array([]);
-	@observable accessor users: IObservableArray<CachedUser> = observable.array(
-		[],
-	);
+	@observable accessor users: IObservableArray<APIUser> = observable.array([]);
 	@observable accessor activeRequests = observable.set<string>();
 	@observable accessor currentChannelId: number | null = null;
 	@observable accessor currentUserId: number | null = null;
@@ -74,6 +72,14 @@ export class AppStore {
 	>();
 	@observable accessor userStatuses = observable.map<number, number>();
 
+	@observable accessor appearanceSettings = {
+		useSystemEmoji: isAppleDevice(),
+		largeEmoji: true,
+		reduceTransparency: false,
+		reduceAnimations: false,
+		brandedColor: "#2571FF",
+	};
+
 	wsClient: WebSocketClient | null = null;
 
 	/*
@@ -92,6 +98,78 @@ export class AppStore {
 	@action
 	updateUserStatus(userId: number, status: number) {
 		this.userStatuses.set(userId, status);
+	}
+
+	@action
+	updateAppearanceSetting<K extends keyof typeof this.appearanceSettings>(
+		key: K,
+		value: (typeof this.appearanceSettings)[K],
+	) {
+		this.appearanceSettings[key] = value;
+		this.applyAppearanceSettings();
+		this.saveAppearanceSettings();
+	}
+
+	@action
+	applyAppearanceSettings() {
+		const {
+			useSystemEmoji,
+			largeEmoji,
+			reduceTransparency,
+			reduceAnimations,
+			brandedColor,
+		} = this.appearanceSettings;
+
+		const html = document.documentElement;
+		html.classList.remove(
+			"native-emoji",
+			"custom-emoji",
+			"large-emoji",
+			"small-emoji",
+		);
+
+		if (useSystemEmoji) {
+			html.classList.add("native-emoji");
+		} else {
+			html.classList.add("custom-emoji");
+		}
+		if (largeEmoji) {
+			html.classList.add("large-emoji");
+		} else {
+			html.classList.add("small-emoji");
+		}
+
+		if (reduceTransparency) {
+			html.classList.add("reduce-transparency");
+		} else {
+			html.classList.remove("reduce-transparency");
+		}
+
+		if (reduceAnimations) {
+			html.classList.add("reduce-motion");
+		} else {
+			html.classList.remove("reduce-motion");
+		}
+
+		html.style.setProperty("--branded-color", brandedColor);
+
+		const hexToRgb = (hex: string) => {
+			const cleanHex = hex.replace("#", "");
+			if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+				Logger.warn(`Invalid hex color format: ${hex}, using default`);
+				return "37, 113, 255";
+			}
+
+			const r = parseInt(cleanHex.substr(0, 2), 16);
+			const g = parseInt(cleanHex.substr(2, 2), 16);
+			const b = parseInt(cleanHex.substr(4, 2), 16);
+			return `${r}, ${g}, ${b}`;
+		};
+
+		const rgbValue = hexToRgb(brandedColor);
+		html.style.setProperty("--branded-color-rgb", rgbValue);
+
+		Logger.info(`Applied branded color: HEX=${brandedColor}, RGB=${rgbValue}`);
 	}
 
 	@action
@@ -477,6 +555,8 @@ export class AppStore {
 			this.setIsLoading(true);
 			Logger.info("Starting store initialization...");
 
+			this.loadAppearanceSettings();
+
 			await this.initializeWebSocket();
 			Logger.info("WebSocket initialized successfully");
 
@@ -492,6 +572,32 @@ export class AppStore {
 			this.connectionError = "Initialization error";
 		} finally {
 			this.setIsLoading(false);
+		}
+	}
+
+	@action
+	loadAppearanceSettings() {
+		try {
+			const saved = localStorage.getItem("appearanceSettings");
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				this.appearanceSettings = { ...this.appearanceSettings, ...parsed };
+			}
+			this.applyAppearanceSettings();
+		} catch (error) {
+			Logger.error(`Failed to load appearance settings: ${error}`);
+		}
+	}
+
+	@action
+	saveAppearanceSettings() {
+		try {
+			localStorage.setItem(
+				"appearanceSettings",
+				JSON.stringify(this.appearanceSettings),
+			);
+		} catch (error) {
+			Logger.error(`Failed to save appearance settings: ${error}`);
 		}
 	}
 
