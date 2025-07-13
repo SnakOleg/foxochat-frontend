@@ -71,7 +71,6 @@
 
 .searchBar {
   display: flex;
-  justify-content: flex-start;
   background: rgb(var(--primary-color-rgb), .05);
   border-radius: 10px;
   padding: 8px 15px;
@@ -89,12 +88,14 @@
   display: flex;
   align-items: center;
   margin: 14px 10px 0;
+  color: var(--branded-color);
 }
 
 .searchIcon {
   width: 20px;
   height: 20px;
   margin-right: 8px;
+  color: inherit;
 }
 
 .searchInput {

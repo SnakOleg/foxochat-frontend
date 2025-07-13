@@ -107,7 +107,7 @@ const SearchBar = ({ onJoinChannel }: SearchBarProps) => {
           onChange={handleChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          className={styles.searchInput}
+          className={`${styles.searchInput} global-search-input`}
         />
       </div>
     </div>

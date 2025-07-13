@@ -1,11 +1,11 @@
+import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
 import { Tooltip } from "@components/Chat/Tooltip/Tooltip";
 import type { ChatHeaderProps } from "@interfaces/interfaces";
-import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg";
-import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg";
-import DefaultAvatar from "@/components/Base/DefaultAvatar/DefaultAvatar";
+import ArrowBackIcon from "@/assets/icons/right-bar/chat/chatHeader/arrow-back.svg?react";
+import OverviewIcon from "@/assets/icons/right-bar/chat/chatHeader/chat-overview.svg?react";
+import SearchIcon from "@/assets/icons/right-bar/chat/chatHeader/search.svg?react";
 import * as style from "./ChatHeader.module.scss";
 import { observer } from "mobx-react";
-import ArrowBackIcon from '@/assets/icons/right-bar/chat/chatHeader/arrow-back.svg';
 
 interface ChatHeaderPropsWithCounts extends ChatHeaderProps {
   participantsCount: number;
@@ -28,7 +28,7 @@ const ChatHeader = ({
         <div className={style.chatHeader}>
             {isMobile && onBack && (
                 <button className={style.backButton} onClick={onBack} aria-label="Back">
-                    <img src={ArrowBackIcon} alt="Back" />
+                    <ArrowBackIcon />
                 </button>
             )}
             {icon ? (
@@ -54,31 +54,16 @@ const ChatHeader = ({
                 <button
                     onClick={() => setShowOverview(!showOverview)}
                     aria-label={showOverview ? "Hide chat info" : "Show chat info"}
-                    style={{
-                        background: "none",
-                        border: "none",
-                        padding: 8,
-                        borderRadius: 8,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
+                    className={style.headerActionButton}
                 >
-                    <img src={OverviewIcon} alt="chat overview"/>
+                    <OverviewIcon />
                 </button>
                 <Tooltip text="Temporary unavailable" position="bottom">
                     <button
                         disabled
-                        style={{
-                            opacity: 0.5,
-                            cursor: "not-allowed",
-                            background: "none",
-                            border: "none",
-                            padding: 8,
-                            borderRadius: 8,
-                        }}
+                        className={style.headerActionButton}
                     >
-                        <img src={SearchIcon} alt="search"/>
+                        <SearchIcon />
                     </button>
                 </Tooltip>
             </div>

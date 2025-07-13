@@ -1,11 +1,6 @@
-import { ComponentChildren } from "preact";
 import * as styles from "./Page.module.scss";
 import { classNames } from "@utils/functions";
-
-interface PageProps {
-	children: ComponentChildren;
-    center?: boolean;
-}
+import type { PageProps } from "@interfaces/interfaces";
 
 export const Page = ({ children, center }: PageProps) => {
 	return (

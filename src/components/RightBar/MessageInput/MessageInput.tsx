@@ -4,11 +4,11 @@ import { Logger } from "@utils/logger";
 import { autorun } from "mobx";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import type React from "react";
-import fileIcon from "@/assets/icons/right-bar/chat/file.svg";
-import mediaIcon from "@/assets/icons/right-bar/chat/media.svg";
-import sendIcon from "@/assets/icons/right-bar/chat/paperplane.svg";
-import spoilerIcon from "@/assets/icons/right-bar/chat/spoiler.svg";
-import trashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg";
+import FileIcon from "@/assets/icons/right-bar/chat/file.svg?react";
+import MediaIcon from "@/assets/icons/right-bar/chat/media.svg?react";
+import SendIcon from "@/assets/icons/right-bar/chat/paperplane.svg?react";
+import SpoilerIcon from "@/assets/icons/right-bar/chat/spoiler.svg?react";
+import TrashIcon from "@/assets/icons/right-bar/mediaViewer/trash.svg?react";
 import * as style from "./MessageInput.module.scss";
 
 function SpoilerOverlay() {
@@ -28,7 +28,7 @@ function SpoilerOverlay() {
 				transition: "background 0.2s",
 			}}
 		>
-			<img src={spoilerIcon} alt="Spoiler" style={{ width: 32, height: 32 }} />
+			<SpoilerIcon style={{ width: 32, height: 32 }} />
 		</div>
 	);
 }
@@ -338,11 +338,7 @@ const MessageInput = ({}: MessageInputProps) => {
 											{isSpoiler && <SpoilerOverlay />}
 										</>
 									) : (
-										<img
-											src={fileIcon}
-											alt="File Icon"
-											className={style.filePreviewIcon}
-										/>
+										<FileIcon className={style.filePreviewIcon} />
 									)}
 									<div className={style.fileNameContainer}>
 										<span className={style.fileName}>{file.name}</span>
@@ -352,22 +348,14 @@ const MessageInput = ({}: MessageInputProps) => {
 											type="button"
 											title={isSpoiler ? "Remove spoiler" : "Mark as spoiler"}
 										>
-											<img
-												src={spoilerIcon}
-												alt="Spoiler"
-												style={{ width: 16, height: 16 }}
-											/>
+											<SpoilerIcon style={{ width: 16, height: 16 }} />
 										</button>
 										<button
 											onClick={() => handleRemoveFile(index, fileId)}
 											className={style.removeFileButton}
 											disabled={isSending || appStore.isSendingMessage}
 										>
-											<img
-												src={trashIcon}
-												alt="Remove"
-												className={style.trashIcon}
-											/>
+											<TrashIcon className={style.trashIcon} />
 										</button>
 									</div>
 								</div>
@@ -383,7 +371,7 @@ const MessageInput = ({}: MessageInputProps) => {
 					className={style.iconButton}
 					disabled={isSending || appStore.isSendingMessage}
 				>
-					<img src={mediaIcon} alt="Media" className={style.icon} />
+					<MediaIcon className={style.icon} />
 				</button>
 				<textarea
 					ref={textareaRef}
@@ -417,17 +405,7 @@ const MessageInput = ({}: MessageInputProps) => {
 						(!message.trim() && !files.length)
 					}
 				>
-					<img
-						src={sendIcon}
-						alt="Send"
-						className={
-							isSending ||
-							appStore.isSendingMessage ||
-							(!message.trim() && !files.length)
-								? style.iconDisabled
-								: style.icon
-						}
-					/>
+					<SendIcon className={style.icon} />
 				</button>
 			</div>
 		</div>

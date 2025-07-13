@@ -96,6 +96,7 @@
   background: none;
   cursor: pointer;
   transition: opacity 0.3s;
+  color: var(--branded-color);
 
   &:hover {
     opacity: 0.8;
@@ -110,6 +111,7 @@
 .icon {
   width: 24px;
   height: 24px;
+  color: inherit;
 }
 
 .iconDisabled {

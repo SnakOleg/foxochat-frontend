@@ -40,6 +40,7 @@ import StateSending from "@/assets/icons/right-bar/chat/message/state-sending.sv
 import StateSent from "@/assets/icons/right-bar/chat/message/state-sent.svg";
 import { getDisplayName } from "@/codeLanguages";
 import * as styles from "./MessageItem.module.scss";
+import { renderEmojisToJSX } from '@utils/emoji';
 
 const PreComponent = function PreComponent({
 	className,
@@ -464,7 +465,7 @@ const MessageItem = ({
 					avatarInitial={avatarInitial}
 				/>
 
-				<div className={styles.messageBubble}>
+				<div className={`${styles.messageBubble} chat-message`}>
 					<Attachments
 						validAttachments={validAttachments}
 						loadedImages={loadedImages}
@@ -484,7 +485,7 @@ const MessageItem = ({
 						authorName={authorName}
 						formattedTime={formattedTime}
 						statusIcon={statusIcon}
-						renderContent={renderContent}
+						renderContent={() => renderEmojisToJSX(content)}
 					/>
 				</div>
 

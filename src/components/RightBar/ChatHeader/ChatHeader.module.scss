@@ -18,10 +18,17 @@
 .backButton {
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--branded-color);
   font-size: 24px;
   margin-right: 10px;
   cursor: pointer;
+  
+  img,
+  svg {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+  }
 }
 
 .chatHeaderAvatar {
@@ -73,4 +80,40 @@
   display: flex;
   gap: 2px;
   margin-left: auto;
+  
+  button {
+    color: var(--branded-color);
+    
+    img {
+      color: inherit;
+    }
+  }
+}
+
+.headerActionButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--branded-color);
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 42px;
+    height: 42px;
+    color: inherit;
+  }
 }

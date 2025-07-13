@@ -15,7 +15,6 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
   border: 2px solid #222;
   flex-shrink: 0;
 }
@@ -48,11 +47,16 @@
   width: 34px;
   height: 34px;
   transition: background 0.18s;
+  color: var(--branded-color);
 }
 
-.sidebarTopIconBtn img {
+.sidebarTopIconBtn img,
+.sidebarTopIconBtn svg {
   opacity: 0.95;
   transition: opacity 0.18s;
+  color: inherit;
+  width: 20px;
+  height: 20px;
 }
 
 .sidebarTopIconBtn:focus,
@@ -63,4 +67,4 @@
 .sidebarTopIconBtn:active img {
   opacity: 1;
   filter: drop-shadow(0 0 4px #2571ff88);
-} 
+}

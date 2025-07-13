@@ -17,7 +17,7 @@ import MuteIcon from "@/assets/icons/right-bar/chat/chat-overview/mute.svg";
 import PinIcon from "@/assets/icons/right-bar/chat/chat-overview/pin.svg";
 import PreviewIcon from "@/assets/icons/right-bar/chat/chat-overview/preview.svg";
 import TrashIcon from "@/assets/icons/right-bar/chat/chat-overview/trash.svg";
-import CheckMarkRead from "@/assets/icons/status/check-mark-read.svg";
+import CheckMarkRead from "@/assets/icons/status/check-mark-read.svg?react";
 import { config } from "@/lib/config/endpoints";
 import { fetchFileAndGenerateThumbHash } from "@/utils/functions";
 import { ChatAvatar } from "./ChatAvatar";
@@ -106,7 +106,7 @@ const ChatItemComponent = ({
 
 	const getStatusIcon = () => {
 		if (!isCurrentUserAuthor || !lastMessage) return null;
-		return <img src={CheckMarkRead} alt="Read" className={styles.statusIcon} />;
+		return <CheckMarkRead className={styles.statusIcon} />;
 	};
 
 	const renderMessagePreview = () => {
@@ -254,7 +254,7 @@ const ChatItemComponent = ({
 						<div className={styles.chatNameWrapper}>
 							{getIcon()}
 							<span className={styles.chatName}>
-								{renderEmojisToJSX(nameToDisplay)}
+								{renderEmojisToJSX(nameToDisplay, true)}
 							</span>
 						</div>
 						<div className={styles.chatMessageRow}>

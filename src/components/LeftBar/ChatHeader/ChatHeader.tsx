@@ -1,6 +1,6 @@
 import DefaultAvatar from "@components/Base/DefaultAvatar/DefaultAvatar";
-import editIcon from "@/assets/icons/left-bar/navigation/channel-edit.svg";
-import plusIcon from "@/assets/icons/left-bar/navigation/create-button.svg";
+import EditIcon from "@/assets/icons/left-bar/navigation/channel-edit.svg?react";
+import PlusIcon from "@/assets/icons/left-bar/navigation/create-button.svg?react";
 import { config } from "@/lib/config/endpoints";
 import * as styles from "./ChatHeader.module.scss";
 
@@ -30,10 +30,10 @@ const ChatHeader = ({ currentUser, onEdit, onAdd }: ChatHeaderProps) => {
                 <span className={styles.sidebarTopTitle}>Chats</span>
                 <div className={styles.sidebarTopIcons}>
                     <button className={styles.sidebarTopIconBtn} aria-label="Edit chats" onClick={onEdit}>
-                        <img src={editIcon} alt="Edit"/>
+                        <EditIcon />
                     </button>
                     <button className={styles.sidebarTopIconBtn} aria-label="Add chat" onClick={onAdd}>
-                        <img src={plusIcon} alt="Add"/>
+                        <PlusIcon />
                     </button>
                 </div>
             </div>
