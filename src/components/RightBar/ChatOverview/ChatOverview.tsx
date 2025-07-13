@@ -56,7 +56,7 @@ const ChatOverview = ({ channel, isOwner, visible = true, className }: ChatOverv
         return () => { mounted = false; };
     }, [channel.id]);
 
-    const onlineCount = members.filter((m) => m.user.status === 1).length;
+    const onlineCount = members.filter((m) => m.user?.status === 1).length;
 
     return (
         <div

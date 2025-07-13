@@ -38,6 +38,7 @@ const MemberListComponent = ({ members, loading, error }: MemberListProps) => {
         if (!members.length) return [];
 
         return [...members].sort((a, b) => {
+            if (!a.user || !b.user) return 0;
             if (a.user.id === appStore.currentUserId) return -1;
             if (b.user.id === appStore.currentUserId) return 1;
 
@@ -75,7 +76,7 @@ const MemberListComponent = ({ members, loading, error }: MemberListProps) => {
         <div className={styles.memberList}>
             <h3 className={styles.title}>Members</h3>
             <div className={styles.members}>
-                {sortedMembers.map((member) => {
+                {sortedMembers.filter(m => m.user).map((member) => {
                     const isCurrentUser = member.user.id === appStore.currentUserId;
                     const currentStatus = appStore.userStatuses.get(member.user.id) ?? member.user.status;
                     const isUserOnline = isOnline(currentStatus);
