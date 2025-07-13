@@ -6,7 +6,8 @@ import privacyIcon from "@/assets/icons/left-bar/settings/privacy-security.svg";
 import supportIcon from "@/assets/foxochat.svg";
 
 export const settingsSections = [
-  { key: "profile", label: "My profile", icon: userIcon, color: "#FF5555" },
+  { key: "profile", label: "Profile", icon: userIcon, color: "#FF5555" },
+  { key: "myprofile", label: "My profile", icon: userIcon, color: "#FF5555" },
   { key: "general", label: "General", icon: generalIcon, color: "#557DFF" },
   { key: "appearance", label: "Appearance", icon: appearanceIcon, color: "#7755FF" },
   { key: "notifications", label: "Notifications", icon: notificationsIcon, color: "#FF9655" },
