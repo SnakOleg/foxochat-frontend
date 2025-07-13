@@ -23,7 +23,7 @@ const MessageContent = ({
 				{isMessageAuthor ? (
 					<>
 						<div className={styles.messageText}>
-							{renderContent(htmlContent)}
+							{Array.isArray(renderContent(content)) ? renderContent(content) : [renderContent(content)]}
 						</div>
 						<div className={styles.messageFooter}>
 							<img

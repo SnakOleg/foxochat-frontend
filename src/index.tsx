@@ -53,10 +53,10 @@ const routes: RouteConfig[] = [
 
 const initializeEmojiSupport = () => {
 	const html = document.documentElement;
-	const classes = isAppleDevice() 
-		? ["is-apple", "native-emoji"] 
-		: ["custom-emoji"];
-	html.classList.add(...classes);
+	
+	if (isAppleDevice()) {
+		html.classList.add('is-apple');
+	}
 };
 
 const registerServiceWorker = async () => {
@@ -217,6 +217,7 @@ export const App = () => {
 
 	useEffect(() => {
 		initializeEmojiSupport();
+		appStore.applyAppearanceSettings();
 		void registerServiceWorker();
 	}, []);
 
