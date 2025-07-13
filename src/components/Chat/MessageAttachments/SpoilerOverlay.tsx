@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "preact/compat";
+import type { SpoilerOverlayProps } from "@interfaces/interfaces";
 
 class DotRenderer {
 	private static instance: DotRenderer | null = null;
@@ -545,14 +546,6 @@ class DotRenderer {
 	public static getSpoilerByElement(element: HTMLElement) {
 		return DotRenderer.createdSpoilers.get(element as HTMLCanvasElement);
 	}
-}
-
-interface SpoilerOverlayProps {
-	visible: boolean;
-	onReveal: () => void;
-	originalImage?: HTMLImageElement | null;
-	blurRadius?: number;
-	animationDuration?: number;
 }
 
 const SpoilerOverlay = ({

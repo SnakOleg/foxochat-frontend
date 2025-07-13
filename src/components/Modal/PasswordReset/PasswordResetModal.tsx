@@ -1,19 +1,9 @@
 import { Button } from "@components/Base/Buttons/Button";
-import type { APIOk } from "foxochat.js";
 import arrowRightIcon from "@/assets/icons/auth/auth-arrow-right.svg";
 import TimerIcon from "@/assets/icons/auth/auth-reset-password-timer.svg?react";
 import { usePasswordReset } from "./PasswordReset";
 import * as style from "./PasswordResetModal.module.scss";
-
-interface PasswordResetModalProps {
-	isOpen: boolean;
-	email: string;
-	onClose: () => void;
-	onSendEmail: (email: string) => Promise<APIOk>;
-	onVerifyCode: (code: string) => Promise<APIOk>;
-	onResetPassword: (password: string) => Promise<APIOk | undefined>;
-	onResendCode: () => Promise<APIOk>;
-}
+import type { PasswordResetModalProps } from "@interfaces/interfaces";
 
 export const PasswordResetModal = ({
 	isOpen,
